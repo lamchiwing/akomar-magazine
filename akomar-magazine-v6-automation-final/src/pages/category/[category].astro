@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCategories, getPostsByCategory } from "../../components/content.js";
+
+export function getStaticPaths() {
+  return getCategories().map((category) => ({
+    params: { category: category.slug },
+    props: { category }
+  }));
+}
+
+const { category } = Astro.props;
+const posts = getPostsByCategory(category.slug);
+
+const descriptions = {
+  "asia-entry": "有關亞洲市場切入、渠道設計、本地適配及控制式擴張的文章。",
+  "automation": "有關 automation、routing、表單系統與入線控制的文章。",
+  "market-signals": "有關市場訊號、需求變化與價值感知的文章。",
+  "insights": "策略觀察、編輯評論與綜合分析文章。"
+};
+---
+<BaseLayout
+  title={`${category.name} | AKOMAR Automation Magazine`}
+  description={descriptions[category.slug] || "內容分類頁。"}
+  canonical={`https://magazine.akomar.com/category/${category.slug}`}
+>
+  <section class="section">
+    <div class="container">
+      <div class="eyebrow">Category</div>
+      <h1>{category.name}</h1>
+      <p class="excerpt">{descriptions[category.slug] || "內容分類頁。"}</p>
+      <div style="margin-top:24px;" class="list-stack">
+        {posts.map((post) => (
+          <article class="list-card">
+            {post.cover && <img src={post.cover} alt={post.title} />}
+            <div class="card-body">
+              <div class="tag">{post.category}</div>
+              <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
+              <p class="excerpt">{post.excerpt}</p>
+              <div class="meta"><span>{post.author}</span><span>{post.date}</span></div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,128 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PricingAddon from "../components/PricingAddon.astro";
+import AutomationFocus from "../components/AutomationFocus.astro";
+import { getAllPosts, getCategories } from "../components/content.js";
+
+const posts = getAllPosts();
+const featured = posts[0];
+const latest = posts.slice(1, 5);
+const gridPosts = posts.slice(0, 6);
+const categories = getCategories();
+
+const descriptions = {
+  "asia-entry": "市場進場結構、渠道設計、代理邏輯與區域驗證。",
+  "automation": "自動化系統、入線控制、表單 routing 與營運效率。",
+  "market-signals": "需求訊號、訊息適配、價值感知與市場反應判讀。",
+  "insights": "編輯觀察、策略筆記與分析型文章。"
+};
+---
+<BaseLayout
+  title="AKOMAR Automation Magazine"
+  description="繁體中文為主、以 automation 為核心的最終 starter 版本，包含文章、分類頁、pricing block、語言加購及社交分享。"
+  canonical="https://magazine.akomar.com/"
+>
+  <section class="hero">
+    <div class="container hero-grid">
+      <article class="hero-main">
+        {featured?.cover && <img src={featured.cover} alt={featured.title} />}
+        <div class="hero-copy">
+          <div class="eyebrow">Automation Lead Story</div>
+          <div class="kicker">{featured?.category}</div>
+          <h1>{featured?.title}</h1>
+          <p class="excerpt">{featured?.excerpt}</p>
+          <div class="meta"><span>{featured?.author}</span><span>{featured?.date}</span></div>
+          <p style="margin-top:18px;"><a class="button-solid" href={`/post/${featured?.slug}`}>閱讀主題文章</a></p>
+        </div>
+      </article>
+
+      <div class="hero-side">
+        <div class="brief-card">
+          <div class="eyebrow">定位</div>
+          <h3>這不是普通 blog，而是兼具 magazine + automation 展示的主站</h3>
+          <p class="muted">首頁同時承接內容發佈、產品定位、方案選購與社交分享，較適合 automation 業務方向。</p>
+        </div>
+
+        <div class="brief-card">
+          <div class="eyebrow">最新文章</div>
+          <div class="list-stack">
+            {latest.map((post) => (
+              <div>
+                <div class="kicker">{post.category}</div>
+                <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
+                <div class="meta"><span>{post.author}</span><span>{post.date}</span></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="newsletter-card">
+          <div class="eyebrow">可改成 CTA</div>
+          <h3>預留作 Telegram / WhatsApp / enquiry CTA</h3>
+          <p class="muted">之後可改成「聯絡顧問」、「加入 Telegram」、「取得 Demo」等行動區塊。</p>
+          <div class="form-row"><a class="button" href="#">預留 CTA</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <AutomationFocus />
+  <PricingAddon />
+
+  <section class="section">
+    <div class="container home-split">
+      <div>
+        <div class="section-head"><div><div class="eyebrow">內容區</div><h2>文章格局</h2></div></div>
+        <div class="grid-3">
+          {gridPosts.map((post) => (
+            <article class="card">
+              {post.cover && <img src={post.cover} alt={post.title} />}
+              <div class="card-body">
+                <div class="tag">{post.category}</div>
+                <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
+                <p class="excerpt">{post.excerpt}</p>
+                <div class="meta"><span>{post.author}</span><span>{post.date}</span></div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head"><div><div class="eyebrow">產品重點</div><h2>為何這個版本適合 automation</h2></div></div>
+        <div class="info-card">
+          <div class="checklist">
+            <div>首頁已展示 automation 層級與語言加購</div>
+            <div>每篇文章可成為 funnel 內容或案例內容</div>
+            <div>CMS 可交由同事直接發文</div>
+            <div>文章頁已內置分享按鈕</div>
+            <div>適合同時做品牌內容與產品引流</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;" class="band">
+          <div class="eyebrow">內容分類</div>
+          <div class="category-grid">
+            {categories.map((category) => (
+              <a class="category-box" href={`/category/${category.slug}`}>
+                <div class="tag">{category.count} 篇</div>
+                <h3>{category.name}</h3>
+                <p class="excerpt">{descriptions[category.slug] || "分類頁面。"}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="band">
+        <div class="eyebrow">發佈層</div>
+        <h3>部署後可由同事直接在 /admin 發文</h3>
+        <p class="muted">這個最終版本保留 magazine 感，同時更加迎合 automation 生意模式。之後只需把 repo 接上 Cloudflare Pages，再補社交連結與 CMS auth 即可。</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

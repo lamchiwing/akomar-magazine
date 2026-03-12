@@ -1,0 +1,86 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getAllPosts, getPostBySlug, slugifyCategory } from "../../components/content.js";
+
+export function getStaticPaths() {
+  return getAllPosts().map((post) => ({ params: { slug: post.slug } }));
+}
+
+const slug = Astro.params.slug;
+const post = getPostBySlug(slug);
+const related = getAllPosts().filter((item) => item.slug !== post.slug && item.category === post.category).slice(0, 3);
+
+const shareUrl = `https://magazine.akomar.com/post/${post.slug}`;
+const encodedUrl = encodeURIComponent(shareUrl);
+const encodedTitle = encodeURIComponent(post.title);
+
+const articleSchema = {
+  "@context":"https://schema.org",
+  "@type":"Article",
+  headline:post.title,
+  description:post.excerpt,
+  datePublished:post.date,
+  author:{ "@type":"Person", name:post.author },
+  image:post.og_image ? [`https://magazine.akomar.com${post.og_image}`] : [],
+  mainEntityOfPage:shareUrl,
+  publisher:{ "@type":"Organization", name:"AKOMAR Automation Magazine" }
+};
+---
+<BaseLayout
+  title={`${post.title} | AKOMAR Automation Magazine`}
+  description={post.excerpt}
+  image={post.og_image}
+  canonical={shareUrl}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <section class="container article-wrap">
+    <article>
+      <header class="article-header">
+        <div class="tag"><a href={`/category/${slugifyCategory(post.category)}`}>{post.category}</a></div>
+        <h1>{post.title}</h1>
+        <p class="excerpt">{post.excerpt}</p>
+        <div class="meta"><span>{post.author}</span><span>{post.date}</span></div>
+        {post.cover && (<figure class="cover"><img src={post.cover} alt={post.title} /></figure>)}
+        {post.cover_caption && <div class="caption">{post.cover_caption}</div>}
+        <div class="share-links">
+          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noreferrer">Facebook</a>
+          <a href={`https://www.threads.net/intent/post?text=${encodedTitle}%20${encodedUrl}`} target="_blank" rel="noreferrer">Threads</a>
+          <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank" rel="noreferrer">Telegram</a>
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noreferrer">LinkedIn</a>
+        </div>
+      </header>
+
+      <div class="prose" set:html={post.body}></div>
+
+      {post.image1 && (<figure class="inline-figure"><img src={post.image1} alt={post.title} />{post.image1_caption && <figcaption class="caption">{post.image1_caption}</figcaption>}</figure>)}
+      {post.image2 && (<figure class="inline-figure"><img src={post.image2} alt={post.title} />{post.image2_caption && <figcaption class="caption">{post.image2_caption}</figcaption>}</figure>)}
+      {post.image3 && (<figure class="inline-figure"><img src={post.image3} alt={post.title} />{post.image3_caption && <figcaption class="caption">{post.image3_caption}</figcaption>}</figure>)}
+
+      <div class="band" style="margin-top:28px;">
+        <div class="eyebrow">文章模板</div>
+        <h3>封面圖 + 3 個內文圖位已預設</h3>
+        <p class="muted">同事發文時只需填標題、摘要、封面圖與內文，不用每次重新設計版面。</p>
+      </div>
+    </article>
+
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <div class="eyebrow">相關文章</div>
+        <div class="related-list">
+          {related.map((item) => (
+            <div class="related-item">
+              <div class="tag">{item.category}</div>
+              <h3><a href={`/post/${item.slug}`}>{item.title}</a></h3>
+              <p class="excerpt">{item.excerpt}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="sidebar-card">
+        <div class="eyebrow">Automation Note</div>
+        <p class="muted">這個文章頁可同時作為內容文章、產品教育頁或 funnel page 使用，較適合 automation 類服務。</p>
+      </div>
+    </aside>
+  </section>
+</BaseLayout>

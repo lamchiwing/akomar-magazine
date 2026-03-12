@@ -1,0 +1,65 @@
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Automation 方案展示</div>
+        <h2>繁體中文為主，可加購語言版本</h2>
+        <p class="excerpt">這個區塊已針對 automation 產品而設，讓客人先揀方案，再加購日文、韓文或簡體中文版本。</p>
+      </div>
+    </div>
+    <div class="buy-grid">
+      <div class="buy-card">
+        <div class="kicker">Base Layer</div>
+        <h3>Automation Basic</h3>
+        <div class="price">€99<span class="small"> / month</span></div>
+        <div class="note-list">
+          <div>主語言預設：繁體中文</div>
+          <div>基本 enquiry form + source detection</div>
+          <div>可展示為網站 pricing 區塊或 landing 區塊</div>
+        </div>
+      </div>
+      <div class="buy-card">
+        <div class="kicker">語言加購</div>
+        <h3>客人可按市場需要加購</h3>
+        <div class="form-row">
+          <label style="width:100%;">
+            <span class="small">選擇 automation 方案</span>
+            <select class="select" id="planSelect">
+              <option value="99">Automation Basic — €99 / month</option>
+              <option value="129">Automation Pro — €129 / month</option>
+              <option value="159">Automation Plus — €159 / month</option>
+              <option value="199">Automation Advanced — €199 / month</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-row">
+          <label style="width:100%;"><input type="checkbox" data-name="日文" data-addon="30" class="lang-addon"> 加購日文版本 +€30 / month</label>
+          <label style="width:100%;"><input type="checkbox" data-name="韓文" data-addon="30" class="lang-addon"> 加購韓文版本 +€30 / month</label>
+          <label style="width:100%;"><input type="checkbox" data-name="簡體中文" data-addon="20" class="lang-addon"> 加購簡體中文版本 +€20 / month</label>
+        </div>
+        <div class="buy-summary">
+          <div class="small">月費總額</div>
+          <div class="price" id="totalPrice">€99</div>
+          <div class="small" id="langSummary">已選語言：繁體中文</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const planSelect = document.getElementById('planSelect');
+    const addons = Array.from(document.querySelectorAll('.lang-addon'));
+    const totalPrice = document.getElementById('totalPrice');
+    const langSummary = document.getElementById('langSummary');
+    function updatePrice() {
+      const base = Number(planSelect?.value || 0);
+      const selected = addons.filter((el) => el.checked);
+      const addOnTotal = selected.reduce((sum, el) => sum + Number(el.dataset.addon || 0), 0);
+      totalPrice.textContent = `€${base + addOnTotal}`;
+      const langs = ['繁體中文', ...selected.map((el) => el.dataset.name)];
+      langSummary.textContent = `已選語言：${langs.join('、')}`;
+    }
+    planSelect?.addEventListener('change', updatePrice);
+    addons.forEach((el) => el.addEventListener('change', updatePrice));
+    updatePrice();
+  </script>
+</section>
