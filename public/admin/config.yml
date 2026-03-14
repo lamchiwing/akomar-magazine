@@ -2,7 +2,8 @@ backend:
   name: github
   repo: lamchiwing/akomar-magazine
   branch: main
-
+  auth_type: implicit
+  
 media_folder: "public/images"
 public_folder: "/images"
 
