@@ -2,6 +2,7 @@ backend:
   name: github
   repo: lamchiwing/akomar-magazine
   branch: main
+
 media_folder: "public/images"
 public_folder: "/images"
 
@@ -11,6 +12,9 @@ collections:
     folder: "src/content/posts"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    format: "frontmatter"
+    extension: "md"
+
     fields:
       - { label: "標題", name: "title", widget: "string" }
       - { label: "日期", name: "date", widget: "datetime" }
