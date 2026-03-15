@@ -1,39 +1,27 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getAllPosts, slugifyCategory } from "../../components/content.js";
+import {
+  getPublishedPosts,
+  getPublishedPostBySlug,
+  slugifyCategory
+} from "../../components/content.js";
 
-export async function getStaticPaths() {
-  const posts = getAllPosts();
-
-  return posts.map((post) => ({
+export function getStaticPaths() {
+  return getPublishedPosts().map((post) => ({
     params: { slug: post.slug }
   }));
 }
 
 const { slug } = Astro.params;
-
-const allPosts = getAllPosts();
-const post = allPosts.find((p) => p.slug === slug);
+const allPublishedPosts = getPublishedPosts();
+const post = getPublishedPostBySlug(slug);
 
 if (!post) {
   throw new Error("Post not found");
 }
 
-const publishTime = new Date(post.publish_at || post.date);
-
-if (publishTime > new Date()) {
-  throw new Error("Post not published yet");
-}
-
-const related = allPosts
-  .filter((item) => {
-    const itemPublishTime = new Date(item.publish_at || item.date);
-    return (
-      item.slug !== post.slug &&
-      item.category === post.category &&
-      itemPublishTime <= new Date()
-    );
-  })
+const related = allPublishedPosts
+  .filter((item) => item.slug !== post.slug && item.category === post.category)
   .slice(0, 3);
 
 const shareUrl = `https://magazine.akomar.com/post/${post.slug}`;
