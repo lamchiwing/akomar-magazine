@@ -1,23 +1,33 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getCategories, getPostsByCategory } from "../../components/content.js";
+import { getAllPosts } from "../../components/content.js";
 
-export function getStaticPaths() {
-  return getCategories().map((category) => ({
-    params: { category: category.slug },
-    props: { category }
+export async function getStaticPaths() {
+  const posts = getAllPosts();
+
+  const categories = [...new Set(posts.map(p =>
+    p.category.toLowerCase().replace(/\s+/g, "-")
+  ))];
+
+  return categories.map((category) => ({
+    params: { category }
   }));
 }
 
-const { category } = Astro.props;
-const posts = getPostsByCategory(category.slug);
+const { category } = Astro.params;
 
-const descriptions = {
-  "asia-entry": "有關亞洲市場切入、渠道設計、本地適配及控制式擴張的文章。",
-  "automation": "有關 automation、routing、表單系統與入線控制的文章。",
-  "market-signals": "有關市場訊號、需求變化與價值感知的文章。",
-  "insights": "策略觀察、編輯評論與綜合分析文章。"
-};
+const posts = getAllPosts()
+  .filter((post) => {
+    const slug = post.category.toLowerCase().replace(/\s+/g, "-");
+
+    const publishTime = new Date(post.publish_at || post.date);
+
+    return slug === category && publishTime <= new Date();
+  })
+  .sort((a, b) =>
+    new Date(b.publish_at || b.date) -
+    new Date(a.publish_at || a.date)
+  );
 ---
 <BaseLayout
   title={`${category.name} | AKOMAR Automation Magazine`}
