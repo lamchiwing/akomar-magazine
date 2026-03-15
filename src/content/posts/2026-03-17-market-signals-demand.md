@@ -1,6 +1,7 @@
 ---
 title: "市場訊號不是流量，而是有沒有可轉化的需求"
 date: "2026-03-17"
+publish_at: 2026-03-17T09:00:00+08:00
 author: "AKOMAR 編輯部"
 category: "Market Signals"
 excerpt: "用市場訊號文章承接內容漏斗，讓客人明白 enquiry、需求和轉化之間的距離。"
