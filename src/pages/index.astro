@@ -2,24 +2,13 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PricingAddon from "../components/PricingAddon.astro";
 import AutomationFocus from "../components/AutomationFocus.astro";
-import { getAllPosts, getCategories } from "../components/content.js";
+import { getPublishedPosts, getCategories } from "../components/content.js";
 
-const allPosts = getAllPosts();
-
-const posts = allPosts
-  .filter((post) => {
-    const publishTime = new Date(post.publish_at || post.date);
-    return publishTime <= new Date();
-  })
-  .sort((a, b) =>
-    new Date(b.publish_at || b.date) -
-    new Date(a.publish_at || a.date)
-  );
+const posts = getPublishedPosts();
 
 const featured = posts[0];
 const latest = posts.slice(1, 5);
 const gridPosts = posts.slice(0, 6);
-
 const categories = getCategories();
 
 const descriptions = {
@@ -29,6 +18,7 @@ const descriptions = {
   "insights": "編輯觀察、策略筆記與分析型文章。"
 };
 ---
+
 <BaseLayout
   title="AKOMAR Automation Magazine"
   description="繁體中文為主、以 automation 為核心的最終 starter 版本，包含文章、分類頁、pricing block、語言加購及社交分享。"
@@ -43,8 +33,13 @@ const descriptions = {
           <div class="kicker">{featured?.category}</div>
           <h1>{featured?.title}</h1>
           <p class="excerpt">{featured?.excerpt}</p>
-          <div class="meta"><span>{featured?.author}</span><span>{featured?.date}</span></div>
-          <p style="margin-top:18px;"><a class="button-solid" href={`/post/${featured?.slug}`}>閱讀主題文章</a></p>
+          <div class="meta">
+            <span>{featured?.author}</span>
+            <span>{featured?.publish_at || featured?.date}</span>
+          </div>
+          <p style="margin-top:18px;">
+            <a class="button-solid" href={`/post/${featured?.slug}`}>閱讀主題文章</a>
+          </p>
         </div>
       </article>
 
@@ -62,7 +57,10 @@ const descriptions = {
               <div>
                 <div class="kicker">{post.category}</div>
                 <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
-                <div class="meta"><span>{post.author}</span><span>{post.date}</span></div>
+                <div class="meta">
+                  <span>{post.author}</span>
+                  <span>{post.publish_at || post.date}</span>
+                </div>
               </div>
             ))}
           </div>
@@ -84,7 +82,13 @@ const descriptions = {
   <section class="section">
     <div class="container home-split">
       <div>
-        <div class="section-head"><div><div class="eyebrow">內容區</div><h2>文章格局</h2></div></div>
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">內容區</div>
+            <h2>文章格局</h2>
+          </div>
+        </div>
+
         <div class="grid-3">
           {gridPosts.map((post) => (
             <article class="card">
@@ -93,7 +97,10 @@ const descriptions = {
                 <div class="tag">{post.category}</div>
                 <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
                 <p class="excerpt">{post.excerpt}</p>
-                <div class="meta"><span>{post.author}</span><span>{post.date}</span></div>
+                <div class="meta">
+                  <span>{post.author}</span>
+                  <span>{post.publish_at || post.date}</span>
+                </div>
               </div>
             </article>
           ))}
@@ -101,7 +108,13 @@ const descriptions = {
       </div>
 
       <div>
-        <div class="section-head"><div><div class="eyebrow">產品重點</div><h2>為何這個版本適合 automation</h2></div></div>
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">產品重點</div>
+            <h2>為何這個版本適合 automation</h2>
+          </div>
+        </div>
+
         <div class="info-card">
           <div class="checklist">
             <div>首頁已展示 automation 層級與語言加購</div>
