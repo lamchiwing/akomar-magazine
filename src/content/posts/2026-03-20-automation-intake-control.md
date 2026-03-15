@@ -1,6 +1,7 @@
 ---
 title: "Automation Intake Control：先把 enquiry 入口收窄，再談擴張"
 date: "2026-03-20"
+publish_at: 2026-03-20T09:00:00+08:00
 author: "AKOMAR 編輯部"
 category: "Automation"
 excerpt: "這篇示範文章以 automation 為主，講解如何先整理 enquiry form、source detection 與 routing，再慢慢加大市場投入。"
