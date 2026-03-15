@@ -1,8 +1,9 @@
 ---
 import "../styles/global.css";
+
 const {
-  title = "AKOMAR Automation Magazine",
-  description = "繁體中文為主的 automation-friendly magazine site，結合文章、分類、社交分享及語言加購展示。",
+  title = "AKOMAR European Brands",
+  description = "A curated platform introducing selected European brands, stories, and collections. Subscribe for updates or submit an enquiry.",
   image = "/images/og-default.svg",
   canonical = "https://magazine.akomar.com/"
 } = Astro.props;
@@ -14,12 +15,14 @@ const {
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
-  <meta property="og:type" content="article" />
-  <meta property="og:site_name" content="AKOMAR Automation Magazine" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AKOMAR European Brands" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={image.startsWith("http") ? image : `https://magazine.akomar.com${image}`} />
+
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
@@ -29,35 +32,47 @@ const {
   <header class="topbar">
     <div class="container topbar-inner">
       <a href="/" class="brand">AKOMAR</a>
+
       <nav class="nav">
         <a href="/">首頁</a>
-        <a href="/category/automation">Automation</a>
-        <a href="/category/asia-entry">亞洲進場</a>
-        <a href="/category/market-signals">市場訊號</a>
-        <a href="/category/insights">洞察</a>
+        <a href="/category/brands">品牌</a>
+        <a href="/category/stories">故事</a>
+        <a href="/category/collections">系列</a>
+        <a href="/category/news">最新消息</a>
       </nav>
+
       <div class="social-mini">
-        <a href="https://facebook.com/akomar" target="_blank">Facebook</a>
-        <a href="https://instagram.com/akomar" target="_blank">Instagram</a>
-        <a href="https://threads.net/@akomar" target="_blank">Threads</a>
-        <a href="https://t.me/akomar" target="_blank">Telegram</a>
+        <a href="https://facebook.com/" target="_blank" rel="noreferrer">Facebook</a>
+        <a href="https://instagram.com/" target="_blank" rel="noreferrer">Instagram</a>
+        <a href="https://threads.net/" target="_blank" rel="noreferrer">Threads</a>
+        <a href="https://t.me/" target="_blank" rel="noreferrer">Telegram</a>
       </div>
     </div>
   </header>
-  <main><slot /></main>
+
+  <main>
+    <slot />
+  </main>
+
   <footer class="footer">
     <div class="container footer-grid">
       <div>
         <div class="brand" style="font-size:1rem;">AKOMAR</div>
-        <p>以 automation 為重心的雜誌式網站 starter，適合每日發文、展示產品、加購語言，以及之後交由同事負責內容更新。</p>
+        <p>
+          A curated platform introducing selected European brands, stories, and collections.
+          Built to support subscription growth, enquiry capture, and order intake through a
+          cleaner editorial experience.
+        </p>
+
         <div class="footer-nav">
           <a href="/">首頁</a>
-          <a href="/category/automation">Automation</a>
-          <a href="/category/asia-entry">亞洲進場</a>
-          <a href="/category/market-signals">市場訊號</a>
-          <a href="/category/insights">洞察</a>
+          <a href="/category/brands">品牌</a>
+          <a href="/category/stories">故事</a>
+          <a href="/category/collections">系列</a>
+          <a href="/category/news">最新消息</a>
         </div>
       </div>
+
       <div>
         <div class="eyebrow">社交連結</div>
         <div class="footer-social">
