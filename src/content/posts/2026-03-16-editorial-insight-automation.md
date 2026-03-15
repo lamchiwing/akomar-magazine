@@ -1,6 +1,7 @@
 ---
 title: "為何 automation 網站仍然需要雜誌式內容"
 date: "2026-03-16"
+publish_at: 2026-03-16T09:00:00+08:00
 author: "AKOMAR 編輯部"
 category: "Insights"
 excerpt: "雜誌式內容不是裝飾，而是教育市場、建立可信度與承接產品解釋的重要層。"
