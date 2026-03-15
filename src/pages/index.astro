@@ -4,10 +4,22 @@ import PricingAddon from "../components/PricingAddon.astro";
 import AutomationFocus from "../components/AutomationFocus.astro";
 import { getAllPosts, getCategories } from "../components/content.js";
 
-const posts = getAllPosts();
+const allPosts = getAllPosts();
+
+const posts = allPosts
+  .filter((post) => {
+    const publishTime = new Date(post.publish_at || post.date);
+    return publishTime <= new Date();
+  })
+  .sort((a, b) =>
+    new Date(b.publish_at || b.date) -
+    new Date(a.publish_at || a.date)
+  );
+
 const featured = posts[0];
 const latest = posts.slice(1, 5);
 const gridPosts = posts.slice(0, 6);
+
 const categories = getCategories();
 
 const descriptions = {
