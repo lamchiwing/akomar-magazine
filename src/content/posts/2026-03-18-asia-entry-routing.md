@@ -1,6 +1,7 @@
 ---
 title: "先做 routing，再談亞洲進場"
 date: "2026-03-18"
+publish_at: 2026-03-18T09:00:00+08:00
 author: "AKOMAR 編輯部"
 category: "Asia Entry"
 excerpt: "亞洲進場不只是市場研究，更涉及 enquiry 入口、代理篩選與渠道控制。"
