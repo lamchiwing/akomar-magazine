@@ -12,7 +12,11 @@ const gridPosts = posts.slice(0, 6);
 const categories = getCategories();
 
 const descriptions = {
-  "brands": "精選歐洲品牌介紹、定位與視覺風格。",
+  "品牌": "精選歐洲品牌介紹、定位與品牌特色。",
+  "故事": "品牌故事、工藝、產地與材料背景。",
+  "系列": "季節系列、新品與精選產品展示。",
+  "消息": "最新上架、品牌動向、訂單開放與公告。",
+  "brands": "精選歐洲品牌介紹、定位與品牌特色。",
   "stories": "品牌故事、工藝、產地與材料背景。",
   "collections": "季節系列、新品與精選產品展示。",
   "news": "最新上架、品牌動向、訂單開放與公告。",
@@ -23,40 +27,47 @@ const descriptions = {
 ---
 
 <BaseLayout
-  title="AKOMAR European Brands"
-  description="A curated platform introducing selected European brands, stories, and collections. Subscribe for updates or submit an enquiry."
+  title="AKOMAR 歐洲品牌平台"
+  description="精選歐洲品牌、品牌故事與產品系列。可訂閱最新消息，或提交品牌與訂單查詢。"
   canonical="https://magazine.akomar.com/"
 >
   <section class="hero">
     <div class="container hero-grid">
       <article class="hero-main">
         {featured?.cover && <img src={featured.cover} alt={featured.title} />}
+
         <div class="hero-copy">
           <div class="eyebrow">Curated European Brands</div>
-          <div class="kicker">{featured?.category || "Featured Story"}</div>
-          <h1>
-            Discover selected European brands, stories, and collections for Asia-facing audiences.
-          </h1>
+          <div class="kicker">{featured?.category || "精選內容"}</div>
+
+          <h1>精選歐洲品牌、故事與產品系列</h1>
+
           <p class="excerpt">
-            這個網站主力展示歐洲品牌、品牌故事、產品系列與 editorial 內容，同時保留訂閱、查詢、訂單與 social media 分發能力。
+            AKOMAR 致力介紹具特色的歐洲品牌，透過內容、圖片與 editorial
+            形式展示品牌背景、產品風格與設計理念，同時支援訂閱、查詢與訂單收集。
           </p>
+
           <div class="meta">
             <span>{featured?.author || "AKOMAR 編輯部"}</span>
             <span>{featured?.publish_at || featured?.date || ""}</span>
           </div>
+
           <p style="margin-top:18px;">
-            <a class="button-solid" href={featured ? `/post/${featured.slug}` : "#"}>閱讀精選內容</a>
+            <a class="button-solid" href={featured ? `/post/${featured.slug}` : "#"}>
+              閱讀精選內容
+            </a>
           </p>
         </div>
       </article>
 
       <div class="hero-side">
         <div class="brief-card">
-          <div class="eyebrow">網站定位</div>
-          <h3>品牌展示、內容發佈、訂閱收集、訂單查詢</h3>
+          <div class="eyebrow">平台定位</div>
+          <h3>品牌展示、內容發佈、訂閱收集、查詢入口</h3>
           <p class="muted">
-            主站不再直接展示 automation 方案，但整體架構仍能支援 automation workflow，
-            例如訂閱通知、social media 分發、order intake、品牌查詢與後台處理。
+            這個網站主力展示歐洲品牌與品牌內容，不直接顯示 automation
+            服務，但整體架構已可支援未來的訂單流程、自動通知、social media
+            分發與 inquiry workflow。
           </p>
         </div>
 
@@ -77,11 +88,13 @@ const descriptions = {
         </div>
 
         <div class="newsletter-card">
-          <div class="eyebrow">Social Media Ready</div>
-          <h3>適合內容分發、社交轉發與圖片展示</h3>
+          <div class="eyebrow">社交媒體延伸</div>
+          <h3>適合內容分發與圖片展示</h3>
           <p class="muted">
-            每篇文章頁保留分享按鈕與圖片位置，之後可接 Telegram、Threads、Instagram、Facebook 等自動分發流程。
+            每篇文章頁保留社交分享按鈕與多張圖片位置，方便之後延伸到
+            Facebook、Instagram、Threads、Telegram 與 LinkedIn。
           </p>
+
           <div class="form-row">
             <a class="button" href="#">查看最新系列</a>
           </div>
@@ -98,7 +111,7 @@ const descriptions = {
         <div class="section-head">
           <div>
             <div class="eyebrow">Editorial Stories</div>
-            <h2>故事與內容展示</h2>
+            <h2>品牌故事與內容展示</h2>
           </div>
         </div>
 
@@ -106,6 +119,7 @@ const descriptions = {
           {gridPosts.map((post) => (
             <article class="card">
               {post.cover && <img src={post.cover} alt={post.title} />}
+
               <div class="card-body">
                 <div class="tag">{post.category}</div>
                 <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
@@ -123,29 +137,30 @@ const descriptions = {
       <div>
         <div class="section-head">
           <div>
-            <div class="eyebrow">Platform Focus</div>
-            <h2>網站作用</h2>
+            <div class="eyebrow">網站功能</div>
+            <h2>平台用途</h2>
           </div>
         </div>
 
         <div class="info-card">
           <div class="checklist">
             <div>展示歐洲品牌與品牌故事</div>
-            <div>突出產品圖片與 editorial 內容</div>
-            <div>收集訂閱者與品牌關注者</div>
-            <div>收集訂單 / inquiry / wholesale enquiry</div>
-            <div>可延伸接 social media automation</div>
+            <div>透過圖片與 editorial 內容提升品牌感</div>
+            <div>收集訂閱者與潛在客戶關注</div>
+            <div>承接產品查詢、合作查詢與訂單需求</div>
+            <div>後續可接 automation、CRM、email 與 social workflow</div>
           </div>
         </div>
 
         <div style="margin-top:16px;" class="band">
           <div class="eyebrow">內容分類</div>
+
           <div class="category-grid">
             {categories.map((category) => (
               <a class="category-box" href={`/category/${category.slug}`}>
                 <div class="tag">{category.count} 篇</div>
                 <h3>{category.name}</h3>
-                <p class="excerpt">{descriptions[category.slug] || "分類頁面。"}</p>
+                <p class="excerpt">{descriptions[category.slug] || descriptions[category.name] || "分類頁面。"}</p>
               </a>
             ))}
           </div>
@@ -159,11 +174,12 @@ const descriptions = {
   <section class="section">
     <div class="container">
       <div class="band">
-        <div class="eyebrow">Image + Social + Automation Ready</div>
-        <h3>保留圖片、社交媒體與後台 automation 擴充能力</h3>
+        <div class="eyebrow">Image + Social + Workflow Ready</div>
+        <h3>前台專注品牌，後台仍可對接 automation</h3>
         <p class="muted">
-          雖然主頁不直接展示 automation 方案，但網站結構仍然很適合接：
-          email 訂閱、自動社交分發、order routing、brand enquiry workflow、Telegram 推送與內容排程。
+          這個前台網站不直接展示 automation 內容，但整體結構已經適合承接：
+          訂閱通知、社交媒體分發、品牌查詢、批發訂單與內容排程。
+          也就是說，前台保持品牌感，後台仍然可以很自動化。
         </p>
       </div>
     </div>
