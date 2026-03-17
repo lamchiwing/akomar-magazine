@@ -1,187 +1,245 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import FeaturedBrands from "../components/FeaturedBrands.astro";
-import SubscribeCTA from "../components/SubscribeCTA.astro";
-import { getPublishedPosts, getCategories } from "../components/content.js";
+import { getPublishedPosts } from "../components/content.js";
 
 const posts = getPublishedPosts();
 
 const featured = posts[0];
-const latest = posts.slice(1, 5);
-const gridPosts = posts.slice(0, 6);
-const categories = getCategories();
+const secondary = posts.slice(1, 4);
 
-const descriptions = {
-  "品牌": "精選歐洲品牌介紹、定位與品牌特色。",
-  "故事": "品牌故事、工藝、產地與材料背景。",
-  "系列": "季節系列、新品與精選產品展示。",
-  "消息": "最新上架、品牌動向、訂單開放與公告。",
-  "brands": "精選歐洲品牌介紹、定位與品牌特色。",
-  "stories": "品牌故事、工藝、產地與材料背景。",
-  "collections": "季節系列、新品與精選產品展示。",
-  "news": "最新上架、品牌動向、訂單開放與公告。",
-  "asia-entry": "市場進場、品牌適配與區域導向內容。",
-  "market-signals": "需求訊號、消費反應與價值感知。",
-  "insights": "編輯觀察與策略分析。"
-};
+const beautyPosts = posts.filter((p) => ["品牌", "brands", "beauty"].includes((p.category || "").toLowerCase()) || (p.title || "").toLowerCase().includes("beauty")).slice(0, 4);
+const foodPosts = posts.filter((p) => ["food", "食品", "歐洲美食"].includes((p.category || "").toLowerCase()) || (p.title || "").toLowerCase().includes("food")).slice(0, 4);
+const travelPosts = posts.filter((p) => ["travel", "stories", "故事"].includes((p.category || "").toLowerCase())).slice(0, 4);
+const healthPosts = posts.filter((p) => ["health", "wellness", "保健營養"].includes((p.category || "").toLowerCase()) || (p.title || "").toLowerCase().includes("wellness")).slice(0, 4);
+
+const latestNews = posts.slice(0, 6);
+const popularPosts = posts.slice(0, 5);
 ---
 
 <BaseLayout
-  title="AKOMAR 歐洲品牌平台"
-  description="精選歐洲品牌、品牌故事與產品系列。可訂閱最新消息，或提交品牌與訂單查詢。"
+  title="AKOMARO Magazine"
+  description="Curated European brands, product stories, and editorial collections."
   canonical="https://magazine.akomar.com/"
 >
-  <section class="hero">
-    <div class="container hero-grid">
-      <article class="hero-main">
-        {featured?.cover && <img src={featured.cover} alt={featured.title} />}
-
-        <div class="hero-copy">
-          <div class="eyebrow">Curated European Brands</div>
-          <div class="kicker">{featured?.category || "精選內容"}</div>
-
-          <h1>精選歐洲品牌、故事與產品系列</h1>
-
-          <p class="excerpt">
-            AKOMAR 致力介紹具特色的歐洲品牌，透過內容、圖片與 editorial
-            形式展示品牌背景、產品風格與設計理念，同時支援訂閱、查詢與訂單收集。
-          </p>
-
-          <div class="meta">
-            <span>{featured?.author || "AKOMAR 編輯部"}</span>
-            <span>{featured?.publish_at || featured?.date || ""}</span>
-          </div>
-
-          <p style="margin-top:18px;">
-            <a class="button-solid" href={featured ? `/post/${featured.slug}` : "#"}>
-              閱讀精選內容
-            </a>
-          </p>
-        </div>
-      </article>
-
-      <div class="hero-side">
-        <div class="brief-card">
-          <div class="eyebrow">平台定位</div>
-          <h3>品牌展示、內容發佈、訂閱收集、查詢入口</h3>
-          <p class="muted">
-            這個網站主力展示歐洲品牌與品牌內容，不直接顯示 automation
-            服務，但整體架構已可支援未來的訂單流程、自動通知、social media
-            分發與 inquiry workflow。
-          </p>
-        </div>
-
-        <div class="brief-card">
-          <div class="eyebrow">最新內容</div>
-          <div class="list-stack">
-            {latest.map((post) => (
-              <div>
-                <div class="kicker">{post.category}</div>
-                <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
-                <div class="meta">
-                  <span>{post.author}</span>
-                  <span>{post.publish_at || post.date}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div class="newsletter-card">
-          <div class="eyebrow">社交媒體延伸</div>
-          <h3>適合內容分發與圖片展示</h3>
-          <p class="muted">
-            每篇文章頁保留社交分享按鈕與多張圖片位置，方便之後延伸到
-            Facebook、Instagram、Threads、Telegram 與 LinkedIn。
-          </p>
-
-          <div class="form-row">
-            <a class="button" href="#">查看最新系列</a>
-          </div>
-        </div>
+  <section class="trending-strip">
+    <div class="container trending-inner">
+      <div class="trending-label">TRENDING NOW</div>
+      <div class="trending-text">
+        {featured ? featured.title : "Curated European brands, collections, and stories"}
       </div>
     </div>
   </section>
 
-  <FeaturedBrands />
-
-  <section class="section">
-    <div class="container home-split">
-      <div>
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">Editorial Stories</div>
-            <h2>品牌故事與內容展示</h2>
-          </div>
-        </div>
-
-        <div class="grid-3">
-          {gridPosts.map((post) => (
-            <article class="card">
-              {post.cover && <img src={post.cover} alt={post.title} />}
-
-              <div class="card-body">
-                <div class="tag">{post.category}</div>
-                <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
-                <p class="excerpt">{post.excerpt}</p>
-                <div class="meta">
-                  <span>{post.author}</span>
-                  <span>{post.publish_at || post.date}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <div class="section-head">
-          <div>
-            <div class="eyebrow">網站功能</div>
-            <h2>平台用途</h2>
-          </div>
-        </div>
-
-        <div class="info-card">
-          <div class="checklist">
-            <div>展示歐洲品牌與品牌故事</div>
-            <div>透過圖片與 editorial 內容提升品牌感</div>
-            <div>收集訂閱者與潛在客戶關注</div>
-            <div>承接產品查詢、合作查詢與訂單需求</div>
-            <div>後續可接 automation、CRM、email 與 social workflow</div>
-          </div>
-        </div>
-
-        <div style="margin-top:16px;" class="band">
-          <div class="eyebrow">內容分類</div>
-
-          <div class="category-grid">
-            {categories.map((category) => (
-              <a class="category-box" href={`/category/${category.slug}`}>
-                <div class="tag">{category.count} 篇</div>
-                <h3>{category.name}</h3>
-                <p class="excerpt">{descriptions[category.slug] || descriptions[category.name] || "分類頁面。"}</p>
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <SubscribeCTA />
-
-  <section class="section">
+  <section class="featured-hero">
     <div class="container">
-      <div class="band">
-        <div class="eyebrow">Image + Social + Workflow Ready</div>
-        <h3>前台專注品牌，後台仍可對接 automation</h3>
-        <p class="muted">
-          這個前台網站不直接展示 automation 內容，但整體結構已經適合承接：
-          訂閱通知、社交媒體分發、品牌查詢、批發訂單與內容排程。
-          也就是說，前台保持品牌感，後台仍然可以很自動化。
-        </p>
+      <div class="featured-grid">
+        {featured && (
+          <article class="featured-card featured-large">
+            <a href={`/post/${featured.slug}`}>
+              <img src={featured.cover || "/images/cover-automation.svg"} alt={featured.title} />
+              <div class="featured-overlay">
+                <div class="featured-tag">{featured.category || "Featured"}</div>
+                <h2>{featured.title}</h2>
+                <div class="featured-meta">
+                  <span>{featured.author}</span>
+                  <span>{featured.publish_at || featured.date}</span>
+                </div>
+              </div>
+            </a>
+          </article>
+        )}
+
+        {secondary.map((post) => (
+          <article class="featured-card" key={post.slug}>
+            <a href={`/post/${post.slug}`}>
+              <img src={post.cover || "/images/cover-insights.svg"} alt={post.title} />
+              <div class="featured-overlay">
+                <div class="featured-tag">{post.category || "Feature"}</div>
+                <h3>{post.title}</h3>
+                <div class="featured-meta">
+                  <span>{post.author}</span>
+                  <span>{post.publish_at || post.date}</span>
+                </div>
+              </div>
+            </a>
+          </article>
+        ))}
       </div>
+    </div>
+  </section>
+
+  <section class="homepage-main">
+    <div class="container content-with-sidebar">
+      <div class="main-column">
+        <section class="editorial-section">
+          <div class="section-headline">
+            <h2>BEAUTY & WELLNESS</h2>
+          </div>
+
+          <div class="section-split">
+            {beautyPosts[0] && (
+              <article class="lead-story">
+                <img src={beautyPosts[0].cover || "/images/cover-asia.svg"} alt={beautyPosts[0].title} />
+                <div class="mini-tag">{beautyPosts[0].category || "Beauty"}</div>
+                <h3><a href={`/post/${beautyPosts[0].slug}`}>{beautyPosts[0].title}</a></h3>
+                <div class="story-meta">
+                  <strong>{beautyPosts[0].author}</strong>
+                  <span>{beautyPosts[0].publish_at || beautyPosts[0].date}</span>
+                </div>
+                <p>{beautyPosts[0].excerpt}</p>
+              </article>
+            )}
+
+            <div class="story-list">
+              {beautyPosts.slice(1).map((post) => (
+                <article class="story-list-item" key={post.slug}>
+                  <img src={post.cover || "/images/cover-signals.svg"} alt={post.title} />
+                  <div>
+                    <h4><a href={`/post/${post.slug}`}>{post.title}</a></h4>
+                    <div class="story-meta small-meta">
+                      <span class="mini-tag">{post.category || "Beauty"}</span>
+                      <span>{post.publish_at || post.date}</span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section class="editorial-section two-column-feature">
+          <div class="section-headline">
+            <h2>FOOD & DISCOVERY</h2>
+          </div>
+
+          <div class="dual-grid">
+            <div>
+              {foodPosts.slice(0, 2).map((post) => (
+                <article class="stack-story" key={post.slug}>
+                  <img src={post.cover || "/images/cover-signals.svg"} alt={post.title} />
+                  <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
+                  <div class="story-meta">
+                    <strong>{post.author}</strong>
+                    <span>{post.publish_at || post.date}</span>
+                  </div>
+                  <p>{post.excerpt}</p>
+                </article>
+              ))}
+            </div>
+
+            <div>
+              {travelPosts.slice(0, 2).map((post) => (
+                <article class="stack-story" key={post.slug}>
+                  <img src={post.cover || "/images/cover-insights.svg"} alt={post.title} />
+                  <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
+                  <div class="story-meta">
+                    <strong>{post.author}</strong>
+                    <span>{post.publish_at || post.date}</span>
+                  </div>
+                  <p>{post.excerpt}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section class="editorial-section">
+          <div class="section-headline">
+            <h2>HEALTHY LIFE</h2>
+          </div>
+
+          <div class="grid-2-feature">
+            {healthPosts.slice(0, 2).map((post) => (
+              <article class="medium-feature" key={post.slug}>
+                <img src={post.cover || "/images/cover-automation.svg"} alt={post.title} />
+                <div class="mini-tag">{post.category || "Wellness"}</div>
+                <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
+                <div class="story-meta">
+                  <strong>{post.author}</strong>
+                  <span>{post.publish_at || post.date}</span>
+                </div>
+                <p>{post.excerpt}</p>
+              </article>
+            ))}
+          </div>
+
+          <div class="story-list-grid">
+            {healthPosts.slice(2, 4).map((post) => (
+              <article class="story-list-item horizontal" key={post.slug}>
+                <img src={post.cover || "/images/cover-asia.svg"} alt={post.title} />
+                <div>
+                  <h4><a href={`/post/${post.slug}`}>{post.title}</a></h4>
+                  <div class="story-meta small-meta">
+                    <span class="mini-tag">{post.category || "Health"}</span>
+                    <span>{post.publish_at || post.date}</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <aside class="sidebar-column">
+        <div class="social-boxes">
+          <div class="social-box">
+            <div class="social-icon">f</div>
+            <strong>20,830</strong>
+            <span>Fans</span>
+          </div>
+          <div class="social-box">
+            <div class="social-icon">x</div>
+            <strong>3,912</strong>
+            <span>Followers</span>
+          </div>
+          <div class="social-box">
+            <div class="social-icon">▶</div>
+            <strong>22,200</strong>
+            <span>Subscribers</span>
+          </div>
+        </div>
+
+        <div class="ad-box">
+          <div class="ad-inner">
+            <span>300x250 Ad</span>
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <h3>MOST POPULAR</h3>
+          <div class="sidebar-list">
+            {popularPosts.map((post) => (
+              <article class="sidebar-post" key={post.slug}>
+                <img src={post.cover || "/images/cover-insights.svg"} alt={post.title} />
+                <div>
+                  <h4><a href={`/post/${post.slug}`}>{post.title}</a></h4>
+                  <div class="story-meta small-meta">
+                    <span class="mini-tag">{post.category || "News"}</span>
+                    <span>{post.publish_at || post.date}</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <h3>LATEST NEWS</h3>
+          <div class="sidebar-list">
+            {latestNews.map((post) => (
+              <article class="sidebar-post" key={post.slug}>
+                <img src={post.cover || "/images/cover-signals.svg"} alt={post.title} />
+                <div>
+                  <h4><a href={`/post/${post.slug}`}>{post.title}</a></h4>
+                  <div class="story-meta small-meta">
+                    <span>{post.publish_at || post.date}</span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </aside>
     </div>
   </section>
 </BaseLayout>
