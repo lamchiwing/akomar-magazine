@@ -1,127 +1,131 @@
 ---
+import "../styles/global.css";
+
 const {
-  title = "AKOMARO 歐洲品牌雜誌",
-  description = "精選歐洲品牌、生活風格、故事與選品內容。",
+  title = "AKOMARO Magazine",
+  description = "Curated European brands, stories, collections, and editorial content.",
   image = "/images/og-default.svg",
   canonical = "https://magazine.akomar.com/"
 } = Astro.props;
 ---
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
+
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="AKOMARO Magazine" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={image.startsWith("http") ? image : `https://magazine.akomar.com${image}`} />
-  <link rel="stylesheet" href="/src/styles/global.css" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={image.startsWith("http") ? image : `https://magazine.akomar.com${image}`} />
 </head>
 <body>
-  <div class="top-utility">
-    <div class="container top-utility-inner">
-      <div class="utility-nav">
-        <a href="#">登入 / 訂閱</a>
-        <a href="/brands">品牌</a>
-        <a href="/about">關於</a>
-        <a href="/enquiry">聯絡</a>
+  <div class="utility-bar">
+    <div class="container utility-inner">
+      <div class="utility-left">
+        <a href="#">SIGN IN / JOIN</a>
+        <a href="/category/news">BLOG</a>
+        <a href="/brands">ABOUT</a>
+        <a href="/enquiry">CONTACT</a>
       </div>
-      <div class="utility-social">
-        <a href="#">Facebook</a>
-        <a href="#">Instagram</a>
-        <a href="#">Threads</a>
-        <a href="#">YouTube</a>
+
+      <div class="utility-right">
+        <a href="https://facebook.com/" target="_blank" rel="noreferrer">f</a>
+        <a href="https://instagram.com/" target="_blank" rel="noreferrer">ig</a>
+        <a href="https://threads.net/" target="_blank" rel="noreferrer">x</a>
+        <a href="https://youtube.com/" target="_blank" rel="noreferrer">yt</a>
       </div>
     </div>
   </div>
 
-  <header class="brand-header">
-    <div class="container brand-header-inner">
-      <div class="brand-block">
-        <div class="brand-title">AKOMARO</div>
-        <div class="brand-subtitle">EUROPEAN BRANDS</div>
+  <header class="site-header">
+    <div class="container site-branding">
+      <a href="/" class="site-logo">
+        <span class="logo-top">AKOMARO</span>
+        <span class="logo-bottom">MAGAZINE</span>
+      </a>
+    </div>
+
+    <div class="nav-shell">
+      <div class="container main-nav">
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/category/brands">Beauty & Wellness</a>
+          <a href="/category/fashion">Fashion</a>
+          <a href="/category/food">Food</a>
+          <a href="/category/living">Living</a>
+          <a href="/category/travel">Travel</a>
+          <a href="/category/news">More</a>
+        </nav>
+
+        <div class="nav-search">⌕</div>
       </div>
     </div>
   </header>
-
-  <div class="main-nav-wrap">
-    <div class="container main-nav-inner">
-      <nav class="main-nav">
-        <a href="/" class="active">首頁</a>
-        <a href="/category/beauty">美妝保養</a>
-        <a href="/category/fashion">服裝配飾</a>
-        <a href="/category/wellness">健康保健</a>
-        <a href="/category/home">居家生活</a>
-        <a href="/category/food">食品飲品</a>
-        <a href="/brands">更多</a>
-      </nav>
-      <div class="main-nav-right">⌕</div>
-    </div>
-  </div>
 
   <main>
     <slot />
   </main>
 
   <footer class="site-footer">
-    <div class="container site-footer-inner">
+    <div class="container footer-grid">
       <div>
-        <div class="footer-brand">AKOMARO</div>
-        <div class="footer-brand-sub">EUROPEAN BRANDS</div>
-        <p class="footer-text">
-          AKOMARO 以雜誌式方式介紹歐洲品牌、生活風格、產品系列與品牌故事，
-          並承接訂閱、查詢及訂單需求。
+        <div class="footer-logo">
+          <span class="logo-top">AKOMARO</span>
+          <span class="logo-bottom">MAGAZINE</span>
+        </div>
+        <p class="footer-copy">
+          AKOMARO is a curated editorial platform introducing European brands,
+          product stories, collections, and lifestyle discovery for Asia-facing audiences.
         </p>
-        <p class="footer-text">聯絡我們：contact@akomar.com</p>
+        <p class="footer-copy">
+          Contact us:
+          <a href="mailto:contact@akomaro.com">contact@akomaro.com</a>
+        </p>
         <div class="footer-social">
-          <a href="#">f</a>
-          <a href="#">ig</a>
-          <a href="#">th</a>
-          <a href="#">yt</a>
+          <a href="https://facebook.com/" target="_blank" rel="noreferrer">f</a>
+          <a href="https://instagram.com/" target="_blank" rel="noreferrer">ig</a>
+          <a href="https://threads.net/" target="_blank" rel="noreferrer">x</a>
+          <a href="https://youtube.com/" target="_blank" rel="noreferrer">yt</a>
         </div>
       </div>
 
       <div>
-        <h3 class="footer-heading">更多內容</h3>
+        <h3 class="footer-heading">Even More News</h3>
         <div class="footer-mini-list">
-          <div class="footer-mini-item">
-            <img src="/images/cover-asia.svg" alt="thumb" />
-            <div>最新歐洲品牌故事與系列介紹</div>
-          </div>
-          <div class="footer-mini-item">
-            <img src="/images/cover-signals.svg" alt="thumb" />
-            <div>適合亞洲市場的生活風格選品</div>
-          </div>
-          <div class="footer-mini-item">
-            <img src="/images/cover-insights.svg" alt="thumb" />
-            <div>品牌內容、訂閱與分發整合</div>
-          </div>
+          <a href="#">The 5 Most Incredible Beauty Transformations</a>
+          <a href="#">Best Upcoming Seasonal Collections</a>
+          <a href="#">Top 10 European Product Trends to Watch</a>
         </div>
       </div>
 
       <div>
-        <h3 class="footer-heading">熱門分類</h3>
-        <div class="footer-text">美妝保養</div>
-        <div class="footer-text">服裝配飾</div>
-        <div class="footer-text">健康保健</div>
-        <div class="footer-text">母嬰親子</div>
-        <div class="footer-text">寵物生活</div>
-        <div class="footer-text">食品飲品</div>
-        <div class="footer-text">居家生活</div>
+        <h3 class="footer-heading">Popular Category</h3>
+        <div class="footer-category-list">
+          <div><span>Beauty & Wellness</span><span>11</span></div>
+          <div><span>Fashion</span><span>9</span></div>
+          <div><span>Food</span><span>8</span></div>
+          <div><span>Living</span><span>7</span></div>
+          <div><span>Travel</span><span>6</span></div>
+          <div><span>News</span><span>5</span></div>
+        </div>
       </div>
     </div>
 
     <div class="footer-bottom">
       <div class="container footer-bottom-inner">
-        <div>© AKOMARO</div>
-        <div class="footer-nav">
-          <a href="/brands">品牌</a>
-          <a href="/about">關於</a>
-          <a href="/enquiry">聯絡</a>
-        </div>
+        <a href="/category/news">Blog</a>
+        <a href="/brands">About</a>
+        <a href="/enquiry">Contact</a>
       </div>
     </div>
   </footer>
