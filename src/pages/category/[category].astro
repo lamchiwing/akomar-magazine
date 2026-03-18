@@ -1,59 +1,47 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getCategories, getPostsByCategory } from "../../components/content.js";
+import { getPublishedPosts } from "../../components/content.js";
 
-export function getStaticPaths() {
-  return getCategories().map((category) => ({
-    params: { category: category.slug },
-    props: { category }
+export async function getStaticPaths() {
+  const posts = getPublishedPosts();
+
+  const categories = [...new Set(posts.map(p => p.category))];
+
+  return categories.map((cat) => ({
+    params: {
+      category: cat.toLowerCase().replace(/\s+/g, "-")
+    }
   }));
 }
 
-const { category } = Astro.props;
-const posts = getPostsByCategory(category.slug);
+const { category } = Astro.params;
 
-const descriptions = {
-  "品牌": "精選歐洲品牌介紹、定位與品牌特色。",
-  "故事": "品牌故事、工藝、產地與材料背景。",
-  "系列": "季節系列、新品與精選產品展示。",
-  "消息": "最新上架、品牌動向、訂單開放與公告。",
-  "brands": "精選歐洲品牌介紹、定位與品牌特色。",
-  "stories": "品牌故事、工藝、產地與材料背景。",
-  "collections": "季節系列、新品與精選產品展示。",
-  "news": "最新上架、品牌動向、訂單開放與公告。",
-  "asia-entry": "市場進場、品牌適配與區域導向內容。",
-  "market-signals": "需求訊號、消費反應與價值感知。",
-  "insights": "編輯觀察與策略分析。"
-};
+const posts = getPublishedPosts().filter((post) =>
+  post.category.toLowerCase().replace(/\s+/g, "-") === category
+);
 ---
 
 <BaseLayout
-  title={`${category.name} | AKOMAR 歐洲品牌平台`}
-  description={descriptions[category.slug] || "內容分類頁。"}
-  canonical={`https://magazine.akomar.com/category/${category.slug}`}
+  title={`${category} | AKOMARO`}
+  description="Category page"
 >
-  <section class="section">
-    <div class="container">
-      <div class="eyebrow">分類</div>
-      <h1>{category.name}</h1>
-      <p class="excerpt">{descriptions[category.slug] || "內容分類頁。"}</p>
+  <section class="container">
+    <h1 style="margin:20px 0;">{category.toUpperCase()}</h1>
 
-      <div style="margin-top:24px;" class="list-stack">
-        {posts.map((post) => (
-          <article class="list-card">
-            {post.cover && <img src={post.cover} alt={post.title} />}
-            <div class="card-body">
-              <div class="tag">{post.category}</div>
-              <h3><a href={`/post/${post.slug}`}>{post.title}</a></h3>
-              <p class="excerpt">{post.excerpt}</p>
-              <div class="meta">
-                <span>{post.author}</span>
-                <span>{post.publish_at || post.date}</span>
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+    <div class="grid-3">
+      {posts.map((post) => (
+        <article class="card">
+          <img src={post.cover} alt={post.title} />
+
+          <div class="card-body">
+            <h3>
+              <a href={`/post/${post.slug}`}>{post.title}</a>
+            </h3>
+
+            <p>{post.excerpt}</p>
+          </div>
+        </article>
+      ))}
     </div>
   </section>
 </BaseLayout>
