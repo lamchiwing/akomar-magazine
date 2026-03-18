@@ -13,23 +13,35 @@ export async function getStaticPaths() {
 const { slug } = Astro.params;
 
 const posts = getPublishedPosts();
-
 const post = posts.find(p => p.slug === slug);
 
 if (!post) {
   throw new Error("Post not found");
 }
 
-const site = "https://magazine.akomar.com";
+const publishTime = new Date(post.publish_at || post.date);
+if (publishTime > new Date()) {
+  throw new Error("Post not published yet");
+}
 
-const shareUrl = `${site}/post/${post.slug}`;
+/* helper */
+function slugifyCategory(cat) {
+  return (cat || "")
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+}
+
+/* share */
+const shareUrl = `https://magazine.akomar.com/post/${post.slug}`;
 const encodedUrl = encodeURIComponent(shareUrl);
 const encodedTitle = encodeURIComponent(post.title);
 
+/* related */
 const related = posts
-  .filter(p => p.slug !== slug && p.category === post.category)
+  .filter(p => p.slug !== post.slug && p.category === post.category)
   .slice(0, 4);
 
+/* schema */
 const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",
@@ -37,196 +49,64 @@ const articleSchema = {
   description: post.excerpt,
   image: post.cover,
   author: {
-    "@type": "Organization",
-    name: "AKOMAR"
+    "@type": "Person",
+    name: post.author
   },
-  publisher: {
-    "@type": "Organization",
-    name: "AKOMAR",
-    logo: {
-      "@type": "ImageObject",
-      url: `${site}/images/logo.svg`
-    }
-  },
-  datePublished: post.publish_at || post.date,
-  mainEntityOfPage: shareUrl
+  datePublished: post.publish_at || post.date
 };
 ---
 
 <BaseLayout
-  title={`${post.title} | AKOMAR`}
+  title={`${post.title} | AKOMARO Magazine`}
   description={post.excerpt}
-  image={post.og_image || post.cover}
+  image={post.cover}
   canonical={shareUrl}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
 
-<script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <section class="container article-wrap">
+    <article>
+      <header class="article-header">
+        <div class="tag">
+          <a href={`/category/${slugifyCategory(post.category)}`}>
+            {post.category}
+          </a>
+        </div>
 
-<section class="container article-wrap">
+        <h1>{post.title}</h1>
+        <p class="excerpt">{post.excerpt}</p>
 
-  <article>
+        <div class="meta">
+          <span>{post.author}</span>
+          <span>{post.publish_at || post.date}</span>
+        </div>
 
-    <header class="article-header">
-
-      <div class="tag">{post.category}</div>
-
-      <h1>{post.title}</h1>
-
-      <p class="excerpt">{post.excerpt}</p>
-
-      <div class="meta">
-        <span>{post.author}</span>
-        <span>{post.publish_at || post.date}</span>
-      </div>
-
-      {post.cover && (
-        <figure class="cover">
-          <img src={post.cover} alt={post.title} />
-        </figure>
-      )}
-
-      {post.cover_caption && (
-        <div class="caption">{post.cover_caption}</div>
-      )}
-
-      <div class="share-links">
-
-        <a
-          href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Facebook
-        </a>
-
-        <a
-          href={`https://www.threads.net/intent/post?text=${encodedTitle}%20${encodedUrl}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Threads
-        </a>
-
-        <a
-          href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Telegram
-        </a>
-
-        <a
-          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          LinkedIn
-        </a>
-
-      </div>
-
-    </header>
-
-
-    <div class="prose" set:html={post.body}></div>
-
-
-    {post.image1 && (
-      <figure class="inline-figure">
-        <img src={post.image1} alt={post.title} />
-        {post.image1_caption && (
-          <figcaption class="caption">{post.image1_caption}</figcaption>
+        {post.cover && (
+          <figure class="cover">
+            <img src={post.cover} alt={post.title} />
+          </figure>
         )}
-      </figure>
-    )}
 
-    {post.image2 && (
-      <figure class="inline-figure">
-        <img src={post.image2} alt={post.title} />
-        {post.image2_caption && (
-          <figcaption class="caption">{post.image2_caption}</figcaption>
-        )}
-      </figure>
-    )}
+        <div class="share-links">
+          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank">Facebook</a>
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank">LinkedIn</a>
+          <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank">Telegram</a>
+        </div>
+      </header>
 
-    {post.image3 && (
-      <figure class="inline-figure">
-        <img src={post.image3} alt={post.title} />
-        {post.image3_caption && (
-          <figcaption class="caption">{post.image3_caption}</figcaption>
-        )}
-      </figure>
-    )}
+      <div class="prose" set:html={post.body}></div>
+    </article>
 
-
-    <div class="band" style="margin-top:40px">
-
-      <div class="eyebrow">Discover European Brands</div>
-
-      <h3>訂閱品牌消息或提交產品查詢</h3>
-
-      <p class="muted">
-        本平台持續介紹歐洲品牌、產品系列與品牌故事。
-        如果希望接收新品資訊、品牌合作或批發訂單，
-        可以訂閱更新或提交查詢。
-      </p>
-
-      <div class="form-row">
-
-        <a class="button-solid" href="#">訂閱品牌更新</a>
-
-        <a class="button" href="#">提交訂單查詢</a>
-
-      </div>
-
-    </div>
-
-  </article>
-
-
-  <aside class="sidebar">
-
-    <div class="sidebar-card">
-
-      <div class="eyebrow">Related Stories</div>
-
-      <div class="related-list">
+    <aside class="sidebar">
+      <div class="sidebar-card">
+        <h3>Related Articles</h3>
 
         {related.map((item) => (
-
           <div class="related-item">
-
-            <div class="tag">{item.category}</div>
-
-            <h3>
-              <a href={`/post/${item.slug}`}>{item.title}</a>
-            </h3>
-
-            <p class="excerpt">{item.excerpt}</p>
-
+            <h4><a href={`/post/${item.slug}`}>{item.title}</a></h4>
           </div>
-
         ))}
-
       </div>
-
-    </div>
-
-
-    <div class="sidebar-card">
-
-      <div class="eyebrow">About AKOMAR</div>
-
-      <p class="muted">
-        AKOMAR 致力於介紹具特色的歐洲品牌，
-        透過 editorial 內容展示品牌背景、
-        產品系列與設計理念。
-      </p>
-
-    </div>
-
-  </aside>
-
-</section>
-
+    </aside>
+  </section>
 </BaseLayout>
