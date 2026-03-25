@@ -1,0 +1,61 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import {
+  SUPPORTED_LANGS,
+  getPublishedBrands,
+  getPublishedBrandBySlug,
+  getAlternates
+} from "../../../../components/content.js";
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const lang of SUPPORTED_LANGS) {
+    for (const brand of getPublishedBrands(lang)) {
+      paths.push({ params: { lang, slug: brand.slug } });
+    }
+  }
+  return paths;
+}
+
+const { lang, slug } = Astro.params;
+const brand = getPublishedBrandBySlug(lang, slug);
+if (!brand) throw new Error("Brand not found");
+
+const baseUrl = "https://magazine.akomaro.com";
+const canonical = `${baseUrl}/${lang}/brand/${brand.slug}`;
+const alternates = getAlternates("brand", brand.original_slug);
+---
+
+<BaseLayout
+  title={`${brand.seo_title || brand.name} | AKOMARO`}
+  description={brand.seo_description || brand.excerpt}
+  image={brand.og_image || brand.cover}
+  canonical={canonical}
+>
+  <Fragment slot="head">
+    {alternates.map((alt) => (
+      <link rel="alternate" hreflang={alt.lang} href={`${baseUrl}/${alt.lang}/brand/${alt.slug}`} />
+    ))}
+  </Fragment>
+
+  <section class="container article-wrap">
+    <article>
+      <div class="tag">{brand.country}</div>
+      <h1>{brand.name}</h1>
+      <p class="excerpt">{brand.excerpt}</p>
+
+      {brand.cover && <img src={brand.cover} alt={brand.name} />}
+
+      <div class="prose" set:html={brand.body}></div>
+
+      {(brand.cta_text || brand.cta_link) && (
+        <div class="band">
+          <h3>{brand.cta_text || "Contact"}</h3>
+          {brand.cta_link && (
+            <p><a class="button-solid" href={brand.cta_link} target="_blank" rel="noreferrer">Open Link</a></p>
+          )}
+        </div>
+      )}
+    </article>
+  </section>
+</BaseLayout>
