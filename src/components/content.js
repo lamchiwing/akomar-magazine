@@ -1,26 +1,48 @@
 import fs from "fs";
 import path from "path";
-import matter from "gray-matter";
 
-const postsDirectory = path.join(process.cwd(), "src/content/posts");
+export function getAllPosts() {
+  const base = "src/content/posts";
 
-export function getPublishedPosts() {
-  const files = fs.readdirSync(postsDirectory);
+  const langs = ["zh-hk", "zh-cn", "ja", "ko"];
+  let all = [];
 
-  const posts = files.map((file) => {
-    const filePath = path.join(postsDirectory, file);
-    const content = fs.readFileSync(filePath, "utf8");
+  langs.forEach(lang => {
+    const dir = path.join(base, lang);
+    if (!fs.existsSync(dir)) return;
 
-    const { data, content: body } = matter(content);
+    const files = fs.readdirSync(dir);
 
-    return {
-      ...data,
-      body,
-      slug: data.slug
-    };
+    files.forEach(file => {
+      const raw = fs.readFileSync(path.join(dir, file), "utf-8");
+      const [frontmatter, content] = raw.split("---").slice(1);
+
+      const data = parseFrontmatter(frontmatter);
+
+      const publishTime = new Date(data.publish_at || data.date);
+
+      if (publishTime <= new Date()) {
+        all.push({
+          ...data,
+          body: content,
+          lang
+        });
+      }
+    });
   });
 
-  return posts
-    .filter(p => new Date(p.publish_at || p.date) <= new Date())
-    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  return all;
+}
+
+function parseFrontmatter(str) {
+  const lines = str.split("\n");
+  const obj = {};
+
+  lines.forEach(line => {
+    const [key, ...rest] = line.split(":");
+    if (!key) return;
+    obj[key.trim()] = rest.join(":").trim().replace(/"/g, "");
+  });
+
+  return obj;
 }
