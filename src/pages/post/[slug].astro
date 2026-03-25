@@ -1,112 +1,98 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getPublishedPosts } from "../../components/content.js";
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import {
+  SUPPORTED_LANGS,
+  getPublishedPosts,
+  getPublishedPostBySlug,
+  getAlternates,
+  slugifyCategory
+} from "../../../../components/content.js";
 
-export async function getStaticPaths() {
-  const posts = getPublishedPosts();
-
-  return posts.map((post) => ({
-    params: { slug: post.slug }
-  }));
+export function getStaticPaths() {
+  const paths = [];
+  for (const lang of SUPPORTED_LANGS) {
+    for (const post of getPublishedPosts(lang)) {
+      paths.push({ params: { lang, slug: post.slug } });
+    }
+  }
+  return paths;
 }
 
-const { slug } = Astro.params;
+const { lang, slug } = Astro.params;
+const post = getPublishedPostBySlug(lang, slug);
+if (!post) throw new Error("Post not found");
 
-const posts = getPublishedPosts();
-const post = posts.find(p => p.slug === slug);
-
-if (!post) {
-  throw new Error("Post not found");
-}
-
-const publishTime = new Date(post.publish_at || post.date);
-if (publishTime > new Date()) {
-  throw new Error("Post not published yet");
-}
-
-/* helper */
-function slugifyCategory(cat) {
-  return (cat || "")
-    .toLowerCase()
-    .replace(/\s+/g, "-");
-}
-
-/* share */
-const shareUrl = `https://magazine.akomar.com/post/${post.slug}`;
-const encodedUrl = encodeURIComponent(shareUrl);
-const encodedTitle = encodeURIComponent(post.title);
-
-/* related */
-const related = posts
-  .filter(p => p.slug !== post.slug && p.category === post.category)
+const related = getPublishedPosts(lang)
+  .filter((item) => item.slug !== post.slug && item.category === post.category)
   .slice(0, 4);
 
-/* schema */
+const baseUrl = "https://magazine.akomaro.com";
+const canonical = `${baseUrl}/${lang}/post/${post.slug}`;
+const alternates = getAlternates("post", post.original_slug);
+
+const langMap = {
+  "zh-hk": "zh-Hant",
+  "zh-cn": "zh-Hans",
+  "ja": "ja",
+  "ko": "ko"
+};
+
 const articleSchema = {
   "@context": "https://schema.org",
   "@type": "Article",
-  headline: post.title,
-  description: post.excerpt,
-  image: post.cover,
-  author: {
-    "@type": "Person",
-    name: post.author
-  },
-  datePublished: post.publish_at || post.date
+  headline: post.seo_title || post.title,
+  description: post.seo_description || post.excerpt,
+  image: post.og_image ? [`${baseUrl}${post.og_image}`] : [],
+  author: { "@type": "Person", name: post.author },
+  datePublished: post.publish_at || post.date,
+  mainEntityOfPage: canonical
 };
 ---
 
 <BaseLayout
-  title={`${post.title} | AKOMARO Magazine`}
-  description={post.excerpt}
-  image={post.cover}
-  canonical={shareUrl}
+  title={`${post.seo_title || post.title} | AKOMARO Magazine`}
+  description={post.seo_description || post.excerpt}
+  image={post.og_image || post.cover}
+  canonical={canonical}
+  lang={langMap[lang] || "en"}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <Fragment slot="head">
+    {alternates.map((alt) => (
+      <link rel="alternate" hreflang={alt.lang} href={`${baseUrl}/${alt.lang}/post/${alt.slug}`} />
+    ))}
+    <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  </Fragment>
 
   <section class="container article-wrap">
     <article>
-      <header class="article-header">
-        <div class="tag">
-          <a href={`/category/${slugifyCategory(post.category)}`}>
-            {post.category}
-          </a>
-        </div>
+      <div class="tag">
+        <a href={`/${lang}/category/${slugifyCategory(post.category)}`}>{post.category}</a>
+      </div>
+      <h1>{post.title}</h1>
+      <p class="excerpt">{post.excerpt}</p>
 
-        <h1>{post.title}</h1>
-        <p class="excerpt">{post.excerpt}</p>
-
-        <div class="meta">
-          <span>{post.author}</span>
-          <span>{post.publish_at || post.date}</span>
-        </div>
-
-        {post.cover && (
-          <figure class="cover">
-            <img src={post.cover} alt={post.title} />
-          </figure>
-        )}
-
-        <div class="share-links">
-          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank">Facebook</a>
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank">LinkedIn</a>
-          <a href={`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`} target="_blank">Telegram</a>
-        </div>
-      </header>
+      {post.cover && <img src={post.cover} alt={post.title} />}
 
       <div class="prose" set:html={post.body}></div>
+
+      {(post.sponsor || post.cta_text || post.cta_link) && (
+        <div class="band">
+          <div class="eyebrow">{post.sponsor ? `Sponsored: ${post.sponsor}` : "Featured"}</div>
+          <h3>{post.cta_text || "Explore More"}</h3>
+          {post.cta_link && (
+            <p><a class="button-solid" href={post.cta_link} target="_blank" rel="noreferrer">Open Link</a></p>
+          )}
+        </div>
+      )}
     </article>
 
     <aside class="sidebar">
-      <div class="sidebar-card">
-        <h3>Related Articles</h3>
-
-        {related.map((item) => (
-          <div class="related-item">
-            <h4><a href={`/post/${item.slug}`}>{item.title}</a></h4>
-          </div>
-        ))}
-      </div>
+      <h3>Related</h3>
+      {related.map((item) => (
+        <div class="related-item">
+          <a href={`/${lang}/post/${item.slug}`}>{item.title}</a>
+        </div>
+      ))}
     </aside>
   </section>
 </BaseLayout>
