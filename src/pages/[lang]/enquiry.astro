@@ -1,0 +1,60 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { SUPPORTED_LANGS } from "../../../components/content.js";
+
+export function getStaticPaths() {
+  return SUPPORTED_LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const endpoint = "https://script.google.com/u/0/home/projects/1DPhfR0FhN1-NMYWkcpp7ezzLA6JdCNMQ4Rbstz5iWsK-6cK40Y0NDefK/edit";
+---
+
+<BaseLayout
+  title="Enquiry | AKOMARO"
+  description="Submit wholesale, partnership, or brand enquiry."
+  canonical={`https://magazine.akomaro.com/${lang}/enquiry/`}
+>
+  <section class="container" style="padding:32px 0;">
+    <h1>Enquiry</h1>
+
+    <form id="enquiry-form" class="card-body" style="max-width:720px;">
+      <input name="name" placeholder="Name" required />
+      <input name="email" type="email" placeholder="Email" required />
+      <input name="company" placeholder="Company" />
+      <input name="country" placeholder="Country" />
+      <input name="brand_slug" placeholder="Brand Slug" />
+      <input name="interest_type" placeholder="Interest Type" />
+      <textarea name="message" placeholder="Message" rows="6"></textarea>
+      <button type="submit">Submit</button>
+      <p id="form-status"></p>
+    </form>
+  </section>
+
+  <script>
+    const form = document.getElementById("enquiry-form");
+    const status = document.getElementById("form-status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const payload = Object.fromEntries(formData.entries());
+      payload.lang = "{lang}";
+      payload.source = "website";
+      payload.page_url = window.location.href;
+
+      try {
+        const res = await fetch("{endpoint}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        status.textContent = json.ok ? "Submitted successfully." : "Submission failed.";
+      } catch (err) {
+        status.textContent = "Submission failed.";
+      }
+    });
+  </script>
+</BaseLayout>
