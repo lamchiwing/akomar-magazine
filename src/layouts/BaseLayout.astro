@@ -3,72 +3,35 @@ import "../styles/global.css";
 
 const {
   title = "AKOMARO Magazine",
-  description = "Curated European brands, stories, collections, and editorial content.",
+  description = "Curated European brands, stories, and collections.",
   image = "/images/og-default.svg",
-  canonical = "https://magazine.akomar.com/"
+  canonical = "https://magazine.akomaro.com/",
+  lang = "zh-Hant"
 } = Astro.props;
 ---
-<html lang="en">
+<html lang={lang}>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
-
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="AKOMARO Magazine" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
-  <meta property="og:image" content={image.startsWith("http") ? image : `https://magazine.akomar.com${image}`} />
-
+  <meta property="og:image" content={image.startsWith("http") ? image : `https://magazine.akomaro.com${image}`} />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content={image.startsWith("http") ? image : `https://magazine.akomar.com${image}`} />
+  <meta name="twitter:image" content={image.startsWith("http") ? image : `https://magazine.akomaro.com${image}`} />
+  <slot name="head" />
 </head>
 <body>
-  <div class="utility-bar">
-    <div class="container utility-inner">
-      <div class="utility-left">
-        <a href="#">SIGN IN / JOIN</a>
-        <a href="/category/news">BLOG</a>
-        <a href="/brands">ABOUT</a>
-        <a href="/enquiry">CONTACT</a>
-      </div>
-
-      <div class="utility-right">
-        <a href="https://facebook.com/" target="_blank" rel="noreferrer">f</a>
-        <a href="https://instagram.com/" target="_blank" rel="noreferrer">ig</a>
-        <a href="https://threads.net/" target="_blank" rel="noreferrer">x</a>
-        <a href="https://youtube.com/" target="_blank" rel="noreferrer">yt</a>
-      </div>
-    </div>
-  </div>
-
   <header class="site-header">
-    <div class="container site-branding">
-      <a href="/" class="site-logo">
-        <span class="logo-top">AKOMARO</span>
-        <span class="logo-bottom">MAGAZINE</span>
-      </a>
-    </div>
-
-    <div class="nav-shell">
-      <div class="container main-nav">
-        <nav class="nav-links">
-          <a href="/">Home</a>
-          <a href="/category/brands">Beauty & Wellness</a>
-          <a href="/category/fashion">Fashion</a>
-          <a href="/category/food">Food</a>
-          <a href="/category/living">Living</a>
-          <a href="/category/travel">Travel</a>
-          <a href="/category/news">More</a>
-        </nav>
-
-        <div class="nav-search">⌕</div>
-      </div>
+    <div class="container">
+      <a class="brand" href="/zh-hk/">AKOMARO Magazine</a>
     </div>
   </header>
 
@@ -77,56 +40,8 @@ const {
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <div class="footer-logo">
-          <span class="logo-top">AKOMARO</span>
-          <span class="logo-bottom">MAGAZINE</span>
-        </div>
-        <p class="footer-copy">
-          AKOMARO is a curated editorial platform introducing European brands,
-          product stories, collections, and lifestyle discovery for Asia-facing audiences.
-        </p>
-        <p class="footer-copy">
-          Contact us:
-          <a href="mailto:contact@akomaro.com">contact@akomaro.com</a>
-        </p>
-        <div class="footer-social">
-          <a href="https://facebook.com/" target="_blank" rel="noreferrer">f</a>
-          <a href="https://instagram.com/" target="_blank" rel="noreferrer">ig</a>
-          <a href="https://threads.net/" target="_blank" rel="noreferrer">x</a>
-          <a href="https://youtube.com/" target="_blank" rel="noreferrer">yt</a>
-        </div>
-      </div>
-
-      <div>
-        <h3 class="footer-heading">Even More News</h3>
-        <div class="footer-mini-list">
-          <a href="#">The 5 Most Incredible Beauty Transformations</a>
-          <a href="#">Best Upcoming Seasonal Collections</a>
-          <a href="#">Top 10 European Product Trends to Watch</a>
-        </div>
-      </div>
-
-      <div>
-        <h3 class="footer-heading">Popular Category</h3>
-        <div class="footer-category-list">
-          <div><span>Beauty & Wellness</span><span>11</span></div>
-          <div><span>Fashion</span><span>9</span></div>
-          <div><span>Food</span><span>8</span></div>
-          <div><span>Living</span><span>7</span></div>
-          <div><span>Travel</span><span>6</span></div>
-          <div><span>News</span><span>5</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <div class="container footer-bottom-inner">
-        <a href="/category/news">Blog</a>
-        <a href="/brands">About</a>
-        <a href="/enquiry">Contact</a>
-      </div>
+    <div class="container">
+      <p>AKOMARO Magazine — curated European brands, stories, and collections.</p>
     </div>
   </footer>
 </body>
