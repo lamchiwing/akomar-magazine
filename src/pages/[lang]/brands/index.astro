@@ -1,0 +1,34 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import { SUPPORTED_LANGS, getPublishedBrands } from "../../../../components/content.js";
+
+export function getStaticPaths() {
+  return SUPPORTED_LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const brands = getPublishedBrands(lang);
+const baseUrl = "https://magazine.akomaro.com";
+---
+
+<BaseLayout
+  title="Brands | AKOMARO Magazine"
+  description="Curated European brand directory."
+  canonical={`${baseUrl}/${lang}/brands/`}
+>
+  <section class="container" style="padding:32px 0;">
+    <h1>Brands</h1>
+    <div class="grid-3">
+      {brands.map((brand) => (
+        <article class="card">
+          <img src={brand.cover} alt={brand.name} />
+          <div class="card-body">
+            <div class="tag">{brand.country}</div>
+            <h3><a href={`/${lang}/brand/${brand.slug}`}>{brand.name}</a></h3>
+            <p>{brand.excerpt}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
