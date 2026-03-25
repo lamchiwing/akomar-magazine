@@ -1,0 +1,48 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import {
+  SUPPORTED_LANGS,
+  getPostCategories,
+  getPostsByCategory
+} from "../../../../components/content.js";
+
+export function getStaticPaths() {
+  const paths = [];
+  for (const lang of SUPPORTED_LANGS) {
+    for (const category of getPostCategories(lang)) {
+      paths.push({
+        params: { lang, category: category.slug },
+        props: { category }
+      });
+    }
+  }
+  return paths;
+}
+
+const { lang } = Astro.params;
+const { category } = Astro.props;
+const posts = getPostsByCategory(lang, category.slug);
+const baseUrl = "https://magazine.akomaro.com";
+---
+
+<BaseLayout
+  title={`${category.name} | AKOMARO Magazine`}
+  description={`${category.name} category page`}
+  canonical={`${baseUrl}/${lang}/category/${category.slug}`}
+>
+  <section class="container" style="padding:32px 0;">
+    <h1>{category.name}</h1>
+    <div class="grid-3">
+      {posts.map((post) => (
+        <article class="card">
+          <img src={post.cover} alt={post.title} />
+          <div class="card-body">
+            <div class="tag">{post.category}</div>
+            <h3><a href={`/${lang}/post/${post.slug}`}>{post.title}</a></h3>
+            <p>{post.excerpt}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
