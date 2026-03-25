@@ -1,0 +1,48 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getAllPosts } from "../../../components/content.js";
+
+export async function getStaticPaths() {
+  const posts = getAllPosts();
+
+  return posts.map(p => ({
+    params: {
+      lang: p.lang,
+      slug: p.slug
+    }
+  }));
+}
+
+const { lang, slug } = Astro.params;
+const posts = getAllPosts();
+
+const post = posts.find(p => p.slug === slug && p.lang === lang);
+
+if (!post) throw new Error("Not found");
+
+const baseUrl = "https://magazine.akomaro.com";
+const url = `${baseUrl}/${lang}/post/${slug}`;
+---
+
+<BaseLayout title={post.title} description={post.excerpt}>
+  
+  <!-- SEO -->
+  <link rel="canonical" href={url} />
+
+  <link rel="alternate" hreflang="zh-hk" href={`${baseUrl}/zh-hk/post/${slug}`} />
+  <link rel="alternate" hreflang="zh-cn" href={`${baseUrl}/zh-cn/post/${slug}`} />
+  <link rel="alternate" hreflang="ja" href={`${baseUrl}/ja/post/${slug}`} />
+  <link rel="alternate" hreflang="ko" href={`${baseUrl}/ko/post/${slug}`} />
+
+  <!-- OG -->
+  <meta property="og:title" content={post.title} />
+  <meta property="og:description" content={post.excerpt} />
+  <meta property="og:image" content={post.og_image} />
+  <meta property="og:url" content={url} />
+
+  <article class="container">
+    <h1>{post.title}</h1>
+    <div innerHTML={post.body} />
+  </article>
+
+</BaseLayout>
