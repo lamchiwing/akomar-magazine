@@ -1,0 +1,73 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SUPPORTED_LANGS, getPublishedPosts, getPostCategories } from "../../components/content.js";
+
+export function getStaticPaths() {
+  return SUPPORTED_LANGS.map((lang) => ({ params: { lang } }));
+}
+
+const { lang } = Astro.params;
+const posts = getPublishedPosts(lang);
+const categories = getPostCategories(lang);
+const featured = posts[0];
+const latest = posts.slice(1, 7);
+const baseUrl = "https://magazine.akomaro.com";
+
+const langMap = {
+  "zh-hk": "zh-Hant",
+  "zh-cn": "zh-Hans",
+  "ja": "ja",
+  "ko": "ko"
+};
+---
+
+<BaseLayout
+  title="AKOMARO Magazine"
+  description="Curated European brands, stories, and collections."
+  canonical={`${baseUrl}/${lang}/`}
+  lang={langMap[lang] || "en"}
+>
+  <section class="container" style="padding:32px 0;">
+    <h1>AKOMARO Magazine</h1>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+      {SUPPORTED_LANGS.map((code) => (
+        <a href={`/${code}/`} class="pill">{code}</a>
+      ))}
+    </div>
+
+    {featured && (
+      <article class="card">
+        <img src={featured.cover} alt={featured.title} />
+        <div class="card-body">
+          <div class="tag">{featured.category}</div>
+          <h2><a href={`/${lang}/post/${featured.slug}`}>{featured.title}</a></h2>
+          <p>{featured.excerpt}</p>
+        </div>
+      </article>
+    )}
+
+    <h2 style="margin-top:28px;">Latest</h2>
+    <div class="grid-3">
+      {latest.map((post) => (
+        <article class="card">
+          <img src={post.cover} alt={post.title} />
+          <div class="card-body">
+            <div class="tag">{post.category}</div>
+            <h3><a href={`/${lang}/post/${post.slug}`}>{post.title}</a></h3>
+            <p>{post.excerpt}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <h2 style="margin-top:28px;">Categories</h2>
+    <div class="grid-4">
+      {categories.map((category) => (
+        <a class="category-box" href={`/${lang}/category/${category.slug}`}>
+          <strong>{category.name}</strong>
+          <span>{category.count}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
