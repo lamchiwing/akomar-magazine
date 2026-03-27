@@ -6,8 +6,46 @@ const {
   description = "Curated European brands, stories, and collections.",
   image = "/images/og-default.svg",
   canonical = "https://magazine.akomaro.com/",
-  lang = "zh-Hant"
+  lang = "zh-hk"
 } = Astro.props;
+
+const ui = {
+  "zh-hk": {
+    home: "首頁",
+    brands: "品牌",
+    articles: "文章",
+    enquiry: "查詢",
+    footerText: "AKOMARO Magazine — 精選歐洲品牌、故事與產品系列。",
+    footerContact: "聯絡我們"
+  },
+  "zh-cn": {
+    home: "首页",
+    brands: "品牌",
+    articles: "文章",
+    enquiry: "咨询",
+    footerText: "AKOMARO Magazine — 精选欧洲品牌、故事与产品系列。",
+    footerContact: "联系我们"
+  },
+  "ja": {
+    home: "ホーム",
+    brands: "ブランド",
+    articles: "記事",
+    enquiry: "お問い合わせ",
+    footerText: "AKOMARO Magazine — ヨーロッパの厳選ブランド、ストーリー、コレクション。",
+    footerContact: "お問い合わせ"
+  },
+  "ko": {
+    home: "홈",
+    brands: "브랜드",
+    articles: "기사",
+    enquiry: "문의",
+    footerText: "AKOMARO Magazine — 유럽의 엄선된 브랜드, 스토리, 컬렉션.",
+    footerContact: "문의하기"
+  }
+};
+
+const t = ui[lang] || ui["zh-hk"];
+const basePath = `/${lang}`;
 ---
 <html lang={lang}>
 <head>
@@ -16,22 +54,32 @@ const {
   <title>{title}</title>
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
+
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="AKOMARO Magazine" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={image.startsWith("http") ? image : `https://magazine.akomaro.com${image}`} />
+
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={image.startsWith("http") ? image : `https://magazine.akomaro.com${image}`} />
+
   <slot name="head" />
 </head>
 <body>
   <header class="site-header">
-    <div class="container">
-      <a class="brand" href="/zh-hk/">AKOMARO Magazine</a>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
+      <a class="brand" href={`${basePath}/`}>AKOMARO Magazine</a>
+
+      <nav style="display:flex;gap:16px;flex-wrap:wrap;">
+        <a href={`${basePath}/`}>{t.home}</a>
+        <a href={`${basePath}/brands/`}>{t.brands}</a>
+        <a href={`${basePath}/category/all`}>{t.articles}</a>
+        <a href={`${basePath}/enquiry/`}>{t.enquiry}</a>
+      </nav>
     </div>
   </header>
 
@@ -40,8 +88,9 @@ const {
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <p>AKOMARO Magazine — curated European brands, stories, and collections.</p>
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
+      <p>{t.footerText}</p>
+      <a href={`${basePath}/enquiry/`}>{t.footerContact}</a>
     </div>
   </footer>
 </body>
