@@ -11,31 +11,54 @@ const posts = getPublishedPosts(lang);
 const categories = getPostCategories(lang);
 const featured = posts[0];
 const latest = posts.slice(1, 7);
-const baseUrl = "https://magazine.akomaro.com";
 
-const langMap = {
-  "zh-hk": "zh-Hant",
-  "zh-cn": "zh-Hans",
-  "ja": "ja",
-  "ko": "ko"
+const copy = {
+  "zh-hk": {
+    title: "精選歐洲品牌、故事與產品系列",
+    latest: "最新文章",
+    categories: "分類",
+    empty: "暫時未有內容。"
+  },
+  "zh-cn": {
+    title: "精选欧洲品牌、故事与产品系列",
+    latest: "最新文章",
+    categories: "分类",
+    empty: "暂时没有内容。"
+  },
+  "ja": {
+    title: "厳選されたヨーロッパブランド、ストーリー、コレクション",
+    latest: "最新記事",
+    categories: "カテゴリー",
+    empty: "まだコンテンツがありません。"
+  },
+  "ko": {
+    title: "엄선된 유럽 브랜드, 스토리, 컬렉션",
+    latest: "최신 기사",
+    categories: "카테고리",
+    empty: "아직 콘텐츠가 없습니다."
+  }
 };
+
+const t = copy[lang] || copy["zh-hk"];
+const baseUrl = "https://magazine.akomaro.com";
 ---
 
 <BaseLayout
   title="AKOMARO Magazine"
   description="Curated European brands, stories, and collections."
   canonical={`${baseUrl}/${lang}/`}
-  lang={langMap[lang] || "en"}
+  lang={lang}
 >
   <section class="container" style="padding:32px 0;">
-    <h1>AKOMARO Magazine</h1>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+    <h1>{t.title}</h1>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 24px;">
       {SUPPORTED_LANGS.map((code) => (
         <a href={`/${code}/`} class="pill">{code}</a>
       ))}
     </div>
 
-    {featured && (
+    {featured ? (
       <article class="card">
         <img src={featured.cover} alt={featured.title} />
         <div class="card-body">
@@ -44,9 +67,11 @@ const langMap = {
           <p>{featured.excerpt}</p>
         </div>
       </article>
+    ) : (
+      <p>{t.empty}</p>
     )}
 
-    <h2 style="margin-top:28px;">Latest</h2>
+    <h2 style="margin-top:28px;">{t.latest}</h2>
     <div class="grid-3">
       {latest.map((post) => (
         <article class="card">
@@ -60,7 +85,7 @@ const langMap = {
       ))}
     </div>
 
-    <h2 style="margin-top:28px;">Categories</h2>
+    <h2 style="margin-top:28px;">{t.categories}</h2>
     <div class="grid-4">
       {categories.map((category) => (
         <a class="category-box" href={`/${lang}/category/${category.slug}`}>
