@@ -1,0 +1,313 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { getPublishedBrands, getPublishedBrandBySlug, getAlternates } from "../../../components/content.js";
+
+export function getStaticPaths() {
+  const brands = getPublishedBrands();
+
+  return brands.map((brand) => ({
+    params: {
+      lang: brand.lang,
+      slug: brand.slug
+    }
+  }));
+}
+
+const { lang, slug } = Astro.params;
+const brand = getPublishedBrandBySlug(lang, slug);
+
+if (!brand) {
+  throw new Error(`Brand not found: ${lang}/${slug}`);
+}
+
+const baseUrl = "https://magazine.akomaro.com";
+const canonical = `${baseUrl}/${lang}/brand/${brand.slug}`;
+const alternates = getAlternates("brand", brand.original_slug);
+
+const pageTitle = brand.seo_title || brand.name || brand.title || "Brand";
+const pageDescription = brand.seo_description || brand.excerpt || "";
+const ogImage = brand.og_image || brand.cover || "/images/og-default.svg";
+
+const ui = {
+  "zh-hk": {
+    backToBrands: "返回品牌列表",
+    website: "官方網站",
+    country: "國家",
+    sponsor: "合作夥伴",
+    relatedImages: "品牌圖片"
+  },
+  "zh-cn": {
+    backToBrands: "返回品牌列表",
+    website: "官方网站",
+    country: "国家",
+    sponsor: "合作伙伴",
+    relatedImages: "品牌图片"
+  },
+  "ja": {
+    backToBrands: "ブランド一覧へ戻る",
+    website: "公式サイト",
+    country: "国",
+    sponsor: "パートナー",
+    relatedImages: "ブランド画像"
+  },
+  "ko": {
+    backToBrands: "브랜드 목록으로 돌아가기",
+    website: "공식 웹사이트",
+    country: "국가",
+    sponsor: "파트너",
+    relatedImages: "브랜드 이미지"
+  }
+};
+
+const t = ui[lang] || ui["zh-hk"];
+
+const galleryImages = [
+  brand.image1,
+  brand.image2,
+  brand.image3,
+  ...(Array.isArray(brand.images) ? brand.images : [])
+].filter(Boolean);
+
+// 去重
+const uniqueGalleryImages = [...new Set(galleryImages)];
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  canonical={canonical}
+  image={ogImage}
+  lang={lang}
+>
+  <Fragment slot="head">
+    {alternates.map((item) => (
+      <link
+        rel="alternate"
+        hreflang={item.lang}
+        href={`${baseUrl}/${item.lang}/brand/${item.slug}`}
+      />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={`${baseUrl}/zh-hk/brand/${brand.slug}`} />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`} />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDescription} />
+    <meta name="twitter:image" content={ogImage.startsWith("http") ? ogImage : `${baseUrl}${ogImage}`} />
+  </Fragment>
+
+  <section class="container brand-page">
+    <div class="brand-topbar">
+      <a class="back-link" href={`/${lang}/brands/`}>← {t.backToBrands}</a>
+    </div>
+
+    <article class="brand-article">
+      {brand.cover && (
+        <div class="brand-hero">
+          <img src={brand.cover} alt={brand.name || brand.title} class="brand-cover" />
+          {brand.cover_caption && <p class="caption">{brand.cover_caption}</p>}
+        </div>
+      )}
+
+      <header class="brand-header">
+        <h1>{brand.name || brand.title}</h1>
+
+        {brand.excerpt && <p class="brand-excerpt">{brand.excerpt}</p>}
+
+        <div class="brand-meta">
+          {brand.country && (
+            <div class="meta-item">
+              <strong>{t.country}</strong>
+              <span>{brand.country}</span>
+            </div>
+          )}
+
+          {brand.website && (
+            <div class="meta-item">
+              <strong>{t.website}</strong>
+              <a href={brand.website} target="_blank" rel="noopener noreferrer">
+                {brand.website}
+              </a>
+            </div>
+          )}
+
+          {brand.sponsor && (
+            <div class="meta-item">
+              <strong>{t.sponsor}</strong>
+              <span>{brand.sponsor}</span>
+            </div>
+          )}
+        </div>
+
+        {(brand.cta_text && brand.cta_link) && (
+          <div class="brand-cta">
+            <a class="cta-button" href={brand.cta_link} target="_blank" rel="noopener noreferrer">
+              {brand.cta_text}
+            </a>
+          </div>
+        )}
+      </header>
+
+      <div class="prose brand-body" set:html={brand.body_html}></div>
+
+      {uniqueGalleryImages.length > 0 && (
+        <section class="brand-gallery-section">
+          <h2>{t.relatedImages}</h2>
+          <div class="brand-gallery">
+            {uniqueGalleryImages.map((image, index) => (
+              <figure class="gallery-item">
+                <img
+                  src={image}
+                  alt={`${brand.name || brand.title} ${index + 1}`}
+                  loading="lazy"
+                />
+                {index === 0 && brand.image1_caption && <figcaption>{brand.image1_caption}</figcaption>}
+                {index === 1 && brand.image2_caption && <figcaption>{brand.image2_caption}</figcaption>}
+                {index === 2 && brand.image3_caption && <figcaption>{brand.image3_caption}</figcaption>}
+              </figure>
+            ))}
+          </div>
+        </section>
+      )}
+    </article>
+  </section>
+
+  <style>
+    .brand-page {
+      padding: 32px 0 48px;
+    }
+
+    .brand-topbar {
+      margin-bottom: 20px;
+    }
+
+    .back-link {
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .brand-article {
+      display: grid;
+      gap: 28px;
+    }
+
+    .brand-hero {
+      display: grid;
+      gap: 10px;
+    }
+
+    .brand-cover {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 16px;
+    }
+
+    .caption {
+      font-size: 0.95rem;
+      opacity: 0.75;
+      margin: 0;
+    }
+
+    .brand-header h1 {
+      margin: 0 0 12px;
+      line-height: 1.1;
+    }
+
+    .brand-excerpt {
+      font-size: 1.08rem;
+      line-height: 1.7;
+      margin: 0 0 20px;
+      opacity: 0.9;
+    }
+
+    .brand-meta {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .meta-item {
+      display: grid;
+      gap: 4px;
+    }
+
+    .meta-item strong {
+      font-size: 0.95rem;
+    }
+
+    .meta-item a {
+      word-break: break-word;
+    }
+
+    .brand-cta {
+      margin-top: 8px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 12px 18px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid currentColor;
+    }
+
+    .brand-body {
+      line-height: 1.8;
+    }
+
+    .brand-gallery-section {
+      margin-top: 8px;
+    }
+
+    .brand-gallery-section h2 {
+      margin-bottom: 16px;
+    }
+
+    .brand-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .gallery-item {
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 14px;
+    }
+
+    .gallery-item figcaption {
+      font-size: 0.92rem;
+      opacity: 0.78;
+    }
+
+    @media (max-width: 900px) {
+      .brand-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .brand-page {
+        padding: 24px 0 40px;
+      }
+
+      .brand-gallery {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</BaseLayout>
