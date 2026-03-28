@@ -73,7 +73,7 @@ const articleSchema = {
 
       {post.cover && <img src={post.cover} alt={post.title} />}
 
-      <div class="prose" set:html={post.body}></div>
+      <div class="prose" set:html={post.body_html}></div>
 
       {(post.sponsor || post.cta_text || post.cta_link) && (
         <div class="band">
