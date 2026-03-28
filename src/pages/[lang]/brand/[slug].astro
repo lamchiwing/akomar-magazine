@@ -46,7 +46,7 @@ const alternates = getAlternates("brand", brand.original_slug);
 
       {brand.cover && <img src={brand.cover} alt={brand.name} />}
 
-      <div class="prose" set:html={brand.body}></div>
+      <div class="brand-body" set:html={brand.body_html} />
 
       {(brand.cta_text || brand.cta_link) && (
         <div class="band">
