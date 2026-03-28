@@ -6,77 +6,29 @@ export const SUPPORTED_LANGS = ["zh-hk", "zh-cn", "ja", "ko"];
 const POSTS_DIR = path.resolve("src/content/posts");
 const BRANDS_DIR = path.resolve("src/content/brands");
 
-function parseFrontmatter(raw) {
-  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
-  if (!match) return { data: {}, body: raw };
-
-  const [, frontmatter, body] = match;
-  const data = {};
-  const lines = frontmatter.split(/\r?\n/);
-
-  let currentKey = null;
-  let inArray = false;
-  let arrayValues = [];
-
-  function commitArray() {
-    if (currentKey && inArray) {
-      data[currentKey] = arrayValues.slice();
-    }
-    currentKey = null;
-    inArray = false;
-    arrayValues = [];
-  }
-
-  for (const rawLine of lines) {
-    const line = rawLine.replace(/\t/g, "    ");
-    const trimmed = line.trim();
-
-    if (!trimmed) continue;
-
-    if (inArray && /^\s*-\s+/.test(line)) {
-      const value = trimmed.replace(/^-+\s*/, "");
-      arrayValues.push(stripQuotes(value));
-      continue;
-    }
-
-    if (/^[A-Za-z0-9_-]+\s*:/.test(trimmed)) {
-      commitArray();
-
-      const idx = trimmed.indexOf(":");
-      const key = trimmed.slice(0, idx).trim();
-      const rest = trimmed.slice(idx + 1).trim();
-
-      if (rest === "") {
-        currentKey = key;
-        inArray = true;
-        arrayValues = [];
-      } else {
-        data[key] = stripQuotes(rest);
-      }
-      continue;
-    }
-
-    if (inArray && trimmed.startsWith("- ")) {
-      const value = trimmed.slice(2).trim();
-      arrayValues.push(stripQuotes(value));
-    }
-  }
-
-  commitArray();
-
-  return { data, body: body.trim() };
-}
-
 function stripQuotes(value = "") {
-  return value.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1");
+  return String(value)
+    .replace(/^"(.*)"$/, "$1")
+    .replace(/^'(.*)'$/, "$1");
 }
 
-export function slugifyCategory(value = "") {
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function slugify(value = "") {
   return String(value)
     .toLowerCase()
     .trim()
     .replace(/\s+/g, "-")
     .replace(/[^\p{L}\p{N}_-]/gu, "");
+}
+
+export function slugifyCategory(value = "") {
+  return slugify(value);
 }
 
 function getTimeValue(value) {
@@ -97,6 +49,272 @@ function inferLangFromPath(filePath) {
     if (normalized.includes(`/${lang}/`)) return lang;
   }
   return "zh-hk";
+}
+
+function normalizeTags(tags) {
+  if (Array.isArray(tags)) {
+    return tags.map((tag) => String(tag).trim()).filter(Boolean);
+  }
+
+  if (!tags) return [];
+
+  return String(tags)
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
+
+function defaultAllLabel(lang) {
+  switch (lang) {
+    case "zh-cn":
+      return "全部";
+    case "ja":
+      return "すべて";
+    case "ko":
+      return "전체";
+    case "zh-hk":
+    default:
+      return "全部";
+  }
+}
+
+function buildExcerpt(body = "", maxLength = 160) {
+  const plain = String(body)
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/!\[.*?\]\(.*?\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^#+\s+/gm, "")
+    .replace(/^>\s+/gm, "")
+    .replace(/[*_~\-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (plain.length <= maxLength) return plain;
+  return `${plain.slice(0, maxLength).trim()}…`;
+}
+
+function parseFrontmatter(raw) {
+  const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!match) return { data: {}, body: raw };
+
+  const [, frontmatter, body] = match;
+  const data = {};
+  const lines = frontmatter.split(/\r?\n/);
+
+  let currentKey = null;
+  let currentArray = null;
+
+  function commitArray() {
+    if (currentKey && Array.isArray(currentArray)) {
+      data[currentKey] = currentArray.slice();
+    }
+    currentKey = null;
+    currentArray = null;
+  }
+
+  for (const rawLine of lines) {
+    const line = rawLine.replace(/\t/g, "    ");
+    const trimmed = line.trim();
+
+    if (!trimmed) continue;
+
+    if (currentKey && /^\s*-\s+/.test(line)) {
+      currentArray.push(stripQuotes(trimmed.replace(/^-+\s*/, "")));
+      continue;
+    }
+
+    if (/^[A-Za-z0-9_-]+\s*:/.test(trimmed)) {
+      commitArray();
+
+      const idx = trimmed.indexOf(":");
+      const key = trimmed.slice(0, idx).trim();
+      const rest = trimmed.slice(idx + 1).trim();
+
+      if (rest === "") {
+        currentKey = key;
+        currentArray = [];
+      } else {
+        data[key] = stripQuotes(rest);
+      }
+      continue;
+    }
+
+    if (currentKey && trimmed.startsWith("- ")) {
+      currentArray.push(stripQuotes(trimmed.slice(2).trim()));
+    }
+  }
+
+  commitArray();
+
+  return {
+    data,
+    body: body.trim()
+  };
+}
+
+function inlineMarkdownToHtml(text = "") {
+  let html = escapeHtml(text);
+
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" loading="lazy" />');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+  html = html.replace(/(^|[^\*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+  html = html.replace(/(^|[^_])_([^_\n]+)_/g, "$1<em>$2</em>");
+  html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+
+  return html;
+}
+
+function markdownToHtml(markdown = "") {
+  if (!markdown) return "";
+
+  const lines = String(markdown).replace(/\r\n/g, "\n").split("\n");
+  const html = [];
+
+  let inList = false;
+  let inOrderedList = false;
+  let inBlockquote = false;
+  let inCodeBlock = false;
+  let codeBuffer = [];
+  let paragraphBuffer = [];
+
+  function flushParagraph() {
+    if (!paragraphBuffer.length) return;
+    const paragraph = paragraphBuffer.join(" ").trim();
+    if (paragraph) {
+      html.push(`<p>${inlineMarkdownToHtml(paragraph)}</p>`);
+    }
+    paragraphBuffer = [];
+  }
+
+  function closeLists() {
+    if (inList) {
+      html.push("</ul>");
+      inList = false;
+    }
+    if (inOrderedList) {
+      html.push("</ol>");
+      inOrderedList = false;
+    }
+  }
+
+  function closeBlockquote() {
+    if (inBlockquote) {
+      flushParagraph();
+      html.push("</blockquote>");
+      inBlockquote = false;
+    }
+  }
+
+  function closeCodeBlock() {
+    if (inCodeBlock) {
+      html.push(`<pre><code>${escapeHtml(codeBuffer.join("\n"))}</code></pre>`);
+      inCodeBlock = false;
+      codeBuffer = [];
+    }
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("```")) {
+      flushParagraph();
+      closeLists();
+      closeBlockquote();
+
+      if (inCodeBlock) {
+        closeCodeBlock();
+      } else {
+        inCodeBlock = true;
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeBuffer.push(line);
+      continue;
+    }
+
+    if (!trimmed) {
+      flushParagraph();
+      closeLists();
+      closeBlockquote();
+      continue;
+    }
+
+    const headingMatch = trimmed.match(/^(#{1,6})\s+(.*)$/);
+    if (headingMatch) {
+      flushParagraph();
+      closeLists();
+      closeBlockquote();
+
+      const level = headingMatch[1].length;
+      const content = inlineMarkdownToHtml(headingMatch[2]);
+      html.push(`<h${level}>${content}</h${level}>`);
+      continue;
+    }
+
+    const ulMatch = trimmed.match(/^[-*]\s+(.*)$/);
+    if (ulMatch) {
+      flushParagraph();
+      closeBlockquote();
+
+      if (inOrderedList) {
+        html.push("</ol>");
+        inOrderedList = false;
+      }
+      if (!inList) {
+        html.push("<ul>");
+        inList = true;
+      }
+
+      html.push(`<li>${inlineMarkdownToHtml(ulMatch[1])}</li>`);
+      continue;
+    }
+
+    const olMatch = trimmed.match(/^\d+\.\s+(.*)$/);
+    if (olMatch) {
+      flushParagraph();
+      closeBlockquote();
+
+      if (inList) {
+        html.push("</ul>");
+        inList = false;
+      }
+      if (!inOrderedList) {
+        html.push("<ol>");
+        inOrderedList = true;
+      }
+
+      html.push(`<li>${inlineMarkdownToHtml(olMatch[1])}</li>`);
+      continue;
+    }
+
+    const quoteMatch = trimmed.match(/^>\s?(.*)$/);
+    if (quoteMatch) {
+      flushParagraph();
+      closeLists();
+
+      if (!inBlockquote) {
+        html.push("<blockquote>");
+        inBlockquote = true;
+      }
+
+      paragraphBuffer.push(quoteMatch[1]);
+      continue;
+    }
+
+    paragraphBuffer.push(trimmed);
+  }
+
+  flushParagraph();
+  closeLists();
+  closeBlockquote();
+  closeCodeBlock();
+
+  return html.join("\n");
 }
 
 function getMarkdownFiles(baseDir) {
@@ -129,30 +347,21 @@ function getMarkdownFiles(baseDir) {
   return results;
 }
 
-function normalizeTags(tags) {
-  if (Array.isArray(tags)) return tags;
-  if (!tags) return [];
-  return String(tags)
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter(Boolean);
-}
-
-function buildItemFromMarkdown(filePath, keyName = "title") {
+function buildItemFromMarkdown(filePath, keyName = "title", type = "post") {
   const raw = fs.readFileSync(filePath, "utf-8");
   const { data, body } = parseFrontmatter(raw);
 
   const filenameSlug = path.basename(filePath, ".md");
   const lang = data.lang || inferLangFromPath(filePath);
-
+  const cover = data.cover || "";
   const title = data.title || data.name || "";
   const name = data.name || "";
   const category = data.category || "";
-  const cover = data.cover || "";
-  const date = data.date || "";
-  const publish_at = data.publish_at || "";
+  const bodyHtml = markdownToHtml(body);
+  const excerpt = data.excerpt || buildExcerpt(body);
 
   return {
+    type,
     slug: data.slug || filenameSlug,
     original_slug: data.original_slug || data.slug || filenameSlug,
     lang,
@@ -162,10 +371,11 @@ function buildItemFromMarkdown(filePath, keyName = "title") {
     category_slug: data.category_slug || slugifyCategory(category),
     author: data.author || "AKOMARO Editorial",
     country: data.country || "",
-    date,
-    publish_at,
-    excerpt: data.excerpt || "",
+    date: data.date || "",
+    publish_at: data.publish_at || "",
+    excerpt,
     body,
+    body_html: bodyHtml,
     cover,
     cover_caption: data.cover_caption || "",
     image1: data.image1 || "",
@@ -180,7 +390,7 @@ function buildItemFromMarkdown(filePath, keyName = "title") {
     website: data.website || "",
     tags: normalizeTags(data.tags),
     seo_title: data.seo_title || data[keyName] || title || name || "",
-    seo_description: data.seo_description || data.excerpt || "",
+    seo_description: data.seo_description || excerpt || "",
     sponsor: data.sponsor || "",
     cta_text: data.cta_text || "",
     cta_link: data.cta_link || "",
@@ -189,9 +399,9 @@ function buildItemFromMarkdown(filePath, keyName = "title") {
   };
 }
 
-function readMarkdownCollection(baseDir, keyName = "title") {
+function readMarkdownCollection(baseDir, keyName = "title", type = "post") {
   const files = getMarkdownFiles(baseDir);
-  const items = files.map((filePath) => buildItemFromMarkdown(filePath, keyName));
+  const items = files.map((filePath) => buildItemFromMarkdown(filePath, keyName, type));
 
   return items.sort((a, b) => {
     const aTime = getTimeValue(a.publish_at || a.date);
@@ -201,13 +411,17 @@ function readMarkdownCollection(baseDir, keyName = "title") {
 }
 
 export function getAllPosts() {
-  return readMarkdownCollection(POSTS_DIR, "title");
+  return readMarkdownCollection(POSTS_DIR, "title", "post");
 }
 
 export function getPublishedPosts(lang = null) {
   return getAllPosts().filter((post) => {
     const langMatch = !lang || post.lang === lang;
-    const statusOk = !post.status || post.status === "published" || post.status === "publish";
+    const statusOk =
+      !post.status ||
+      post.status === "published" ||
+      post.status === "publish";
+
     return langMatch && statusOk && isPublished(post);
   });
 }
@@ -225,13 +439,19 @@ export function getPostCategories(lang) {
     const name = post.category || defaultAllLabel(lang);
 
     if (!map.has(slug)) {
-      map.set(slug, { slug, name, count: 1 });
+      map.set(slug, {
+        slug,
+        name,
+        count: 1
+      });
     } else {
       map.get(slug).count += 1;
     }
   }
 
-  const categories = Array.from(map.values());
+  const categories = Array.from(map.values()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 
   if (!categories.some((item) => item.slug === "all")) {
     categories.unshift({
@@ -256,13 +476,17 @@ export function getPostsByCategory(lang, categorySlug) {
 }
 
 export function getAllBrands() {
-  return readMarkdownCollection(BRANDS_DIR, "name");
+  return readMarkdownCollection(BRANDS_DIR, "name", "brand");
 }
 
 export function getPublishedBrands(lang = null) {
   return getAllBrands().filter((brand) => {
     const langMatch = !lang || brand.lang === lang;
-    const statusOk = !brand.status || brand.status === "published" || brand.status === "publish";
+    const statusOk =
+      !brand.status ||
+      brand.status === "published" ||
+      brand.status === "publish";
+
     return langMatch && statusOk && isPublished(brand);
   });
 }
@@ -280,18 +504,4 @@ export function getAlternates(type, originalSlug) {
       lang: item.lang,
       slug: item.slug
     }));
-}
-
-function defaultAllLabel(lang) {
-  switch (lang) {
-    case "zh-cn":
-      return "全部";
-    case "ja":
-      return "すべて";
-    case "ko":
-      return "전체";
-    case "zh-hk":
-    default:
-      return "全部";
-  }
 }
