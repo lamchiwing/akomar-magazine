@@ -1,7 +1,8 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 export const SUPPORTED_LANGS = ["zh-hk", "zh-cn", "ja", "ko"];
+
 const POSTS_DIR = path.resolve("src/content/posts");
 const BRANDS_DIR = path.resolve("src/content/brands");
 
@@ -15,8 +16,10 @@ function parseFrontmatter(raw) {
   for (const line of frontmatter.split("\n")) {
     const idx = line.indexOf(":");
     if (idx === -1) continue;
+
     const key = line.slice(0, idx).trim();
     let value = line.slice(idx + 1).trim();
+
     value = value.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1");
     data[key] = value;
   }
@@ -25,15 +28,24 @@ function parseFrontmatter(raw) {
 }
 
 export function slugifyCategory(value = "") {
-  return value.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "");
 }
 
 export function isPublished(item) {
-  const publishTime = new Date(item.publish_at || item.date);
-  return publishTime <= new Date();
+  const rawDate = item.publish_at || item.date;
+  if (!rawDate) return true;
+
+  const publishTime = new Date(rawDate).getTime();
+  if (Number.isNaN(publishTime)) return true;
+
+  return publishTime <= Date.now();
 }
 
-function readMarkdownCollection(baseDir, keyName = "title") {
+function safeReadMarkdownCollection(baseDir, keyName = "title") {
   const all = [];
 
   for (const lang of SUPPORTED_LANGS) {
@@ -43,7 +55,8 @@ function readMarkdownCollection(baseDir, keyName = "title") {
     const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
 
     for (const file of files) {
-      const raw = fs.readFileSync(path.join(dir, file), "utf-8");
+      const fullPath = path.join(dir, file);
+      const raw = fs.readFileSync(fullPath, "utf-8");
       const { data, body } = parseFrontmatter(raw);
 
       all.push({
@@ -81,18 +94,20 @@ function readMarkdownCollection(baseDir, keyName = "title") {
   }
 
   return all.sort((a, b) => {
-    const aTime = new Date(a.publish_at || a.date).getTime();
-    const bTime = new Date(b.publish_at || b.date).getTime();
+    const aTime = new Date(a.publish_at || a.date || 0).getTime();
+    const bTime = new Date(b.publish_at || b.date || 0).getTime();
     return bTime - aTime;
   });
 }
 
 export function getAllPosts() {
-  return readMarkdownCollection(POSTS_DIR, "title");
+  return safeReadMarkdownCollection(POSTS_DIR, "title");
 }
 
 export function getPublishedPosts(lang = null) {
-  return getAllPosts().filter((post) => isPublished(post) && (!lang || post.lang === lang));
+  return getAllPosts().filter(
+    (post) => isPublished(post) && (!lang || post.lang === lang)
+  );
 }
 
 export function getPublishedPostBySlug(lang, slug) {
@@ -101,29 +116,39 @@ export function getPublishedPostBySlug(lang, slug) {
 
 export function getPostCategories(lang) {
   const map = new Map();
+
   for (const post of getPublishedPosts(lang)) {
-    const slug = slugifyCategory(post.category);
+    const slug = slugifyCategory(post.category || "all");
+    const name = post.category || "All";
+
     if (!map.has(slug)) {
-      map.set(slug, { slug, name: post.category, count: 1 });
+      map.set(slug, { slug, name, count: 1 });
     } else {
       map.get(slug).count += 1;
     }
   }
+
   return Array.from(map.values());
 }
 
 export function getPostsByCategory(lang, categorySlug) {
+  if (categorySlug === "all") {
+    return getPublishedPosts(lang);
+  }
+
   return getPublishedPosts(lang).filter(
-    (post) => slugifyCategory(post.category) === categorySlug
+    (post) => slugifyCategory(post.category || "") === categorySlug
   );
 }
 
 export function getAllBrands() {
-  return readMarkdownCollection(BRANDS_DIR, "name");
+  return safeReadMarkdownCollection(BRANDS_DIR, "name");
 }
 
 export function getPublishedBrands(lang = null) {
-  return getAllBrands().filter((brand) => isPublished(brand) && (!lang || brand.lang === lang));
+  return getAllBrands().filter(
+    (brand) => isPublished(brand) && (!lang || brand.lang === lang)
+  );
 }
 
 export function getPublishedBrandBySlug(lang, slug) {
@@ -132,7 +157,11 @@ export function getPublishedBrandBySlug(lang, slug) {
 
 export function getAlternates(type, originalSlug) {
   const source = type === "brand" ? getAllBrands() : getAllPosts();
+
   return source
     .filter((item) => item.original_slug === originalSlug && isPublished(item))
-    .map((item) => ({ lang: item.lang, slug: item.slug }));
+    .map((item) => ({
+      lang: item.lang,
+      slug: item.slug
+    }));
 }
