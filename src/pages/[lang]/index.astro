@@ -3,39 +3,51 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { SUPPORTED_LANGS, getPublishedPosts, getPostCategories } from "../../components/content.js";
 
 export function getStaticPaths() {
-  return SUPPORTED_LANGS.map((lang) => ({ params: { lang } }));
+  return SUPPORTED_LANGS.map((lang) => ({
+    params: { lang }
+  }));
 }
 
 const { lang } = Astro.params;
+
 const posts = getPublishedPosts(lang);
 const categories = getPostCategories(lang);
-const featured = posts[0];
-const latest = posts.slice(1, 7);
+const safePosts = Array.isArray(posts) ? posts : [];
+const featured = safePosts[0];
+const latest = safePosts.slice(1, 7);
 
 const copy = {
   "zh-hk": {
     title: "精選歐洲品牌、故事與產品系列",
     latest: "最新文章",
     categories: "分類",
-    empty: "暫時未有內容。"
+    empty: "暫時未有內容。",
+    pageTitle: "AKOMARO Magazine｜精選歐洲品牌、故事與產品系列",
+    pageDescription: "精選歐洲品牌、故事與產品系列。"
   },
   "zh-cn": {
     title: "精选欧洲品牌、故事与产品系列",
     latest: "最新文章",
     categories: "分类",
-    empty: "暂时没有内容。"
+    empty: "暂时没有内容。",
+    pageTitle: "AKOMARO Magazine｜精选欧洲品牌、故事与产品系列",
+    pageDescription: "精选欧洲品牌、故事与产品系列。"
   },
   "ja": {
     title: "厳選されたヨーロッパブランド、ストーリー、コレクション",
     latest: "最新記事",
     categories: "カテゴリー",
-    empty: "まだコンテンツがありません。"
+    empty: "まだコンテンツがありません。",
+    pageTitle: "AKOMARO Magazine｜厳選されたヨーロッパブランド、ストーリー、コレクション",
+    pageDescription: "厳選されたヨーロッパブランド、ストーリー、コレクション。"
   },
   "ko": {
     title: "엄선된 유럽 브랜드, 스토리, 컬렉션",
     latest: "최신 기사",
     categories: "카테고리",
-    empty: "아직 콘텐츠가 없습니다."
+    empty: "아직 콘텐츠가 없습니다.",
+    pageTitle: "AKOMARO Magazine｜엄선된 유럽 브랜드, 스토리, 컬렉션",
+    pageDescription: "엄선된 유럽 브랜드, 스토리, 컬렉션."
   }
 };
 
@@ -44,8 +56,8 @@ const baseUrl = "https://magazine.akomaro.com";
 ---
 
 <BaseLayout
-  title="AKOMARO Magazine"
-  description="Curated European brands, stories, and collections."
+  title={t.pageTitle}
+  description={t.pageDescription}
   canonical={`${baseUrl}/${lang}/`}
   lang={lang}
 >
