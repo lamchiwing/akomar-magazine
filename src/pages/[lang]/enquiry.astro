@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SUPPORTED_LANGS } from "../../../components/content.js";
+import { SUPPORTED_LANGS } from "../../components/content.js";
 
 export function getStaticPaths() {
   return SUPPORTED_LANGS.map((lang) => ({ params: { lang } }));
