@@ -1,53 +1,30 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
-import { SUPPORTED_LANGS, getPublishedPosts, getPostCategories } from "../../components/content.js";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { SUPPORTED_LANGS, getPublishedBrands } from "../../../components/content.js";
 
 export function getStaticPaths() {
-  return SUPPORTED_LANGS.map((lang) => ({
-    params: { lang }
-  }));
+  return SUPPORTED_LANGS.map((lang) => ({ params: { lang } }));
 }
 
 const { lang } = Astro.params;
-
-const posts = getPublishedPosts(lang);
-const categories = getPostCategories(lang);
-const safePosts = Array.isArray(posts) ? posts : [];
-const featured = safePosts[0];
-const latest = safePosts.slice(1, 7);
+const brands = getPublishedBrands(lang);
 
 const copy = {
   "zh-hk": {
-    title: "精選歐洲品牌、故事與產品系列",
-    latest: "最新文章",
-    categories: "分類",
-    empty: "暫時未有內容。",
-    pageTitle: "AKOMARO Magazine｜精選歐洲品牌、故事與產品系列",
-    pageDescription: "精選歐洲品牌、故事與產品系列。"
+    title: "品牌",
+    empty: "暫時未有品牌內容。"
   },
   "zh-cn": {
-    title: "精选欧洲品牌、故事与产品系列",
-    latest: "最新文章",
-    categories: "分类",
-    empty: "暂时没有内容。",
-    pageTitle: "AKOMARO Magazine｜精选欧洲品牌、故事与产品系列",
-    pageDescription: "精选欧洲品牌、故事与产品系列。"
+    title: "品牌",
+    empty: "暂时没有品牌内容。"
   },
   "ja": {
-    title: "厳選されたヨーロッパブランド、ストーリー、コレクション",
-    latest: "最新記事",
-    categories: "カテゴリー",
-    empty: "まだコンテンツがありません。",
-    pageTitle: "AKOMARO Magazine｜厳選されたヨーロッパブランド、ストーリー、コレクション",
-    pageDescription: "厳選されたヨーロッパブランド、ストーリー、コレクション。"
+    title: "ブランド",
+    empty: "まだブランドコンテンツがありません。"
   },
   "ko": {
-    title: "엄선된 유럽 브랜드, 스토리, 컬렉션",
-    latest: "최신 기사",
-    categories: "카테고리",
-    empty: "아직 콘텐츠가 없습니다.",
-    pageTitle: "AKOMARO Magazine｜엄선된 유럽 브랜드, 스토리, 컬렉션",
-    pageDescription: "엄선된 유럽 브랜드, 스토리, 컬렉션."
+    title: "브랜드",
+    empty: "아직 브랜드 콘텐츠가 없습니다."
   }
 };
 
@@ -56,55 +33,32 @@ const baseUrl = "https://magazine.akomaro.com";
 ---
 
 <BaseLayout
-  title={t.pageTitle}
-  description={t.pageDescription}
-  canonical={`${baseUrl}/${lang}/`}
+  title={`${t.title} | AKOMARO`}
+  description="European brands directory."
+  canonical={`${baseUrl}/${lang}/brands/`}
   lang={lang}
 >
   <section class="container" style="padding:32px 0;">
     <h1>{t.title}</h1>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 24px;">
-      {SUPPORTED_LANGS.map((code) => (
-        <a href={`/${code}/`} class="pill">{code}</a>
-      ))}
-    </div>
-
-    {featured ? (
-      <article class="card">
-        <img src={featured.cover} alt={featured.title} />
-        <div class="card-body">
-          <div class="tag">{featured.category}</div>
-          <h2><a href={`/${lang}/post/${featured.slug}`}>{featured.title}</a></h2>
-          <p>{featured.excerpt}</p>
-        </div>
-      </article>
+    {brands.length ? (
+      <div class="grid-3">
+        {brands.map((brand) => (
+          <article class="card">
+            {brand.cover && <img src={brand.cover} alt={brand.name || brand.title} />}
+            <div class="card-body">
+              <h2>
+                <a href={`/${lang}/brand/${brand.slug}`}>
+                  {brand.name || brand.title}
+                </a>
+              </h2>
+              {brand.excerpt && <p>{brand.excerpt}</p>}
+            </div>
+          </article>
+        ))}
+      </div>
     ) : (
       <p>{t.empty}</p>
     )}
-
-    <h2 style="margin-top:28px;">{t.latest}</h2>
-    <div class="grid-3">
-      {latest.map((post) => (
-        <article class="card">
-          <img src={post.cover} alt={post.title} />
-          <div class="card-body">
-            <div class="tag">{post.category}</div>
-            <h3><a href={`/${lang}/post/${post.slug}`}>{post.title}</a></h3>
-            <p>{post.excerpt}</p>
-          </div>
-        </article>
-      ))}
-    </div>
-
-    <h2 style="margin-top:28px;">{t.categories}</h2>
-    <div class="grid-4">
-      {categories.map((category) => (
-        <a class="category-box" href={`/${lang}/category/${category.slug}`}>
-          <strong>{category.name}</strong>
-          <span>{category.count}</span>
-        </a>
-      ))}
-    </div>
   </section>
 </BaseLayout>
