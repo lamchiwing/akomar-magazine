@@ -435,7 +435,8 @@ export function getPostCategories(lang) {
   const map = new Map();
 
   for (const post of posts) {
-    const slug = post.category_slug || slugifyCategory(post.category || "all");
+    const rawSlug = post.category_slug || slugifyCategory(post.category || "");
+    const slug = rawSlug || "uncategorized";
     const name = post.category || defaultAllLabel(lang);
 
     if (!map.has(slug)) {
@@ -470,7 +471,8 @@ export function getPostsByCategory(lang, categorySlug) {
   if (categorySlug === "all") return posts;
 
   return posts.filter((post) => {
-    const slug = post.category_slug || slugifyCategory(post.category || "");
+    const rawSlug = post.category_slug || slugifyCategory(post.category || "");
+    const slug = rawSlug || "uncategorized";
     return slug === categorySlug;
   });
 }

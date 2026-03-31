@@ -9,26 +9,41 @@ export function getStaticPaths() {
 const { lang } = Astro.params;
 const brands = getPublishedBrands(lang);
 const baseUrl = "https://magazine.akomaro.com";
+
+const copy = {
+  "zh-hk": { title: "品牌", empty: "暫時未有品牌內容。" },
+  "zh-cn": { title: "品牌", empty: "暂时没有品牌内容。" },
+  "ja": { title: "ブランド", empty: "まだブランドコンテンツがありません。" },
+  "ko": { title: "브랜드", empty: "아직 브랜드 콘텐츠가 없습니다." }
+};
+
+const t = copy[lang] || copy["zh-hk"];
 ---
 
 <BaseLayout
-  title="Brands | AKOMARO Magazine"
+  title={`${t.title} | AKOMARO`}
   description="Curated European brand directory."
   canonical={`${baseUrl}/${lang}/brands/`}
+  lang={lang}
 >
   <section class="container" style="padding:32px 0;">
-    <h1>Brands</h1>
-    <div class="grid-3">
-      {brands.map((brand) => (
-        <article class="card">
-          <img src={brand.cover} alt={brand.name} />
-          <div class="card-body">
-            <div class="tag">{brand.country}</div>
-            <h3><a href={`/${lang}/brand/${brand.slug}`}>{brand.name}</a></h3>
-            <p>{brand.excerpt}</p>
-          </div>
-        </article>
-      ))}
-    </div>
+    <h1>{t.title}</h1>
+
+    {brands.length ? (
+      <div class="grid-3">
+        {brands.map((brand) => (
+          <article class="card">
+            {brand.cover && <img src={brand.cover} alt={brand.name || brand.title} />}
+            <div class="card-body">
+              <div class="tag">{brand.country}</div>
+              <h3><a href={`/${lang}/brand/${brand.slug}`}>{brand.name || brand.title}</a></h3>
+              <p>{brand.excerpt}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <p>{t.empty}</p>
+    )}
   </section>
 </BaseLayout>
