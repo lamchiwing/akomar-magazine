@@ -1,0 +1,34 @@
+backend:
+  name: github
+  repo: lamchiwing/akomar-magazine
+  branch: main
+  auth_type: implicit
+
+media_folder: "public/images"
+public_folder: "/images"
+
+collections:
+  - name: "posts"
+    label: "文章"
+    folder: "src/content/posts"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    format: "frontmatter"
+    extension: "md"
+
+    fields:
+      - { label: "標題", name: "title", widget: "string" }
+      - { label: "日期", name: "date", widget: "datetime" }
+      - { label: "作者", name: "author", widget: "string", default: "AKOMAR 編輯部" }
+      - { label: "分類", name: "category", widget: "select", options: ["Automation", "Asia Entry", "Market Signals", "Insights"] }
+      - { label: "摘要", name: "excerpt", widget: "text" }
+      - { label: "封面圖", name: "cover", widget: "image", required: true }
+      - { label: "封面圖說", name: "cover_caption", widget: "string", required: false }
+      - { label: "內文圖 1", name: "image1", widget: "image", required: false }
+      - { label: "內文圖 1 圖說", name: "image1_caption", widget: "string", required: false }
+      - { label: "內文圖 2", name: "image2", widget: "image", required: false }
+      - { label: "內文圖 2 圖說", name: "image2_caption", widget: "string", required: false }
+      - { label: "內文圖 3", name: "image3", widget: "image", required: false }
+      - { label: "內文圖 3 圖說", name: "image3_caption", widget: "string", required: false }
+      - { label: "OG 圖", name: "og_image", widget: "image", required: false }
+      - { label: "內文", name: "body", widget: "markdown" }
