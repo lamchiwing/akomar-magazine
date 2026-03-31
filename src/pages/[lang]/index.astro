@@ -9,43 +9,73 @@ export function getStaticPaths() {
 }
 
 const { lang } = Astro.params;
+
 const posts = getPublishedPosts(lang);
 const categories = getPostCategories(lang);
-const featured = posts[0];
-const latest = posts.slice(1, 7);
+
+const heroPosts = posts.slice(0, 3);
+const mainFeature = heroPosts[0];
+const sideFeature1 = heroPosts[1];
+const sideFeature2 = heroPosts[2];
+
+const latestPosts = posts.slice(3, 7);
+const sectionLead = posts[7];
+const sectionListA = posts.slice(8, 12);
+const sectionListB = posts.slice(12, 16);
+const sidebarPosts = posts.slice(0, 4);
 
 const copy = {
   "zh-hk": {
-    title: "精選歐洲品牌、故事與產品系列",
-    latest: "最新文章",
-    categories: "分類",
-    empty: "暫時未有內容。",
     pageTitle: "AKOMARO Magazine｜精選歐洲品牌、故事與產品系列",
-    pageDescription: "精選歐洲品牌、故事與產品系列。"
+    pageDescription: "精選歐洲品牌、故事與產品系列。",
+    heroTitle: "精選歐洲品牌、故事與產品系列",
+    trendingLabel: "焦點內容",
+    trendingText: mainFeature?.title || "最新品牌與市場觀察",
+    latest: "最新文章",
+    editorialA: "品牌與風格",
+    editorialB: "市場與生活方式",
+    mostPopular: "最受歡迎",
+    categories: "熱門分類",
+    empty: "暫時未有內容。"
   },
   "zh-cn": {
-    title: "精选欧洲品牌、故事与产品系列",
-    latest: "最新文章",
-    categories: "分类",
-    empty: "暂时没有内容。",
     pageTitle: "AKOMARO Magazine｜精选欧洲品牌、故事与产品系列",
-    pageDescription: "精选欧洲品牌、故事与产品系列。"
+    pageDescription: "精选欧洲品牌、故事与产品系列。",
+    heroTitle: "精选欧洲品牌、故事与产品系列",
+    trendingLabel: "焦点内容",
+    trendingText: mainFeature?.title || "最新品牌与市场观察",
+    latest: "最新文章",
+    editorialA: "品牌与风格",
+    editorialB: "市场与生活方式",
+    mostPopular: "最受欢迎",
+    categories: "热门分类",
+    empty: "暂时没有内容。"
   },
   "ja": {
-    title: "厳選されたヨーロッパブランド、ストーリー、コレクション",
-    latest: "最新記事",
-    categories: "カテゴリー",
-    empty: "まだコンテンツがありません。",
     pageTitle: "AKOMARO Magazine｜厳選されたヨーロッパブランド、ストーリー、コレクション",
-    pageDescription: "厳選されたヨーロッパブランド、ストーリー、コレクション。"
+    pageDescription: "厳選されたヨーロッパブランド、ストーリー、コレクション。",
+    heroTitle: "厳選されたヨーロッパブランド、ストーリー、コレクション",
+    trendingLabel: "注目コンテンツ",
+    trendingText: mainFeature?.title || "最新ブランドと市場インサイト",
+    latest: "最新記事",
+    editorialA: "ブランドとスタイル",
+    editorialB: "市場とライフスタイル",
+    mostPopular: "人気記事",
+    categories: "人気カテゴリー",
+    empty: "まだコンテンツがありません。"
   },
   "ko": {
-    title: "엄선된 유럽 브랜드, 스토리, 컬렉션",
-    latest: "최신 기사",
-    categories: "카테고리",
-    empty: "아직 콘텐츠가 없습니다.",
     pageTitle: "AKOMARO Magazine｜엄선된 유럽 브랜드, 스토리, 컬렉션",
-    pageDescription: "엄선된 유럽 브랜드, 스토리, 컬렉션."
+    pageDescription: "엄선된 유럽 브랜드, 스토리, 컬렉션.",
+    heroTitle: "엄선된 유럽 브랜드, 스토리, 컬렉션",
+    trendingLabel: "주목 콘텐츠",
+    trendingText: mainFeature?.title || "최신 브랜드와 시장 인사이트",
+    latest: "최신 기사",
+    editorialA: "브랜드와 스타일",
+    editorialB: "시장과 라이프스타일",
+    mostPopular: "인기 기사",
+    categories: "인기 카테고리",
+    empty: "아직 콘텐츠가 없습니다."
   }
 };
 
@@ -59,50 +89,203 @@ const baseUrl = "https://magazine.akomaro.com";
   canonical={`${baseUrl}/${lang}/`}
   lang={lang}
 >
-  <section class="container" style="padding:32px 0;">
-    <h1>{t.title}</h1>
-
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 24px;">
-      {SUPPORTED_LANGS.map((code) => (
-        <a href={`/${code}/`} class="pill">{code}</a>
-      ))}
+  <div class="trending-strip">
+    <div class="container trending-inner">
+      <div class="trending-label">{t.trendingLabel}</div>
+      <div class="trending-text">{t.trendingText}</div>
     </div>
+  </div>
 
-    {featured ? (
-      <article class="card">
-        <img src={featured.cover} alt={featured.title} />
-        <div class="card-body">
-          <div class="tag">{featured.category}</div>
-          <h2><a href={`/${lang}/post/${featured.slug}`}>{featured.title}</a></h2>
-          <p>{featured.excerpt}</p>
+  <section class="featured-hero">
+    <div class="container">
+      <h1 style="margin:0 0 18px;font-size:52px;line-height:1.08;font-weight:900;">
+        {t.heroTitle}
+      </h1>
+
+      {mainFeature ? (
+        <div class="featured-grid">
+          <article class="featured-card featured-large">
+            {mainFeature.cover && <img src={mainFeature.cover} alt={mainFeature.title} />}
+            <div class="featured-overlay">
+              <div class="featured-tag">{mainFeature.category || "Feature"}</div>
+              <h2>
+                <a href={`/${lang}/post/${mainFeature.slug}`}>{mainFeature.title}</a>
+              </h2>
+              <div class="featured-meta">
+                <span>{mainFeature.author || "AKOMARO Editorial"}</span>
+                <span>{mainFeature.date || mainFeature.publish_at || ""}</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="featured-card">
+            {sideFeature1?.cover && <img src={sideFeature1.cover} alt={sideFeature1.title} />}
+            {sideFeature1 && (
+              <div class="featured-overlay">
+                <div class="mini-tag">{sideFeature1.category || "Story"}</div>
+                <h3>
+                  <a href={`/${lang}/post/${sideFeature1.slug}`}>{sideFeature1.title}</a>
+                </h3>
+              </div>
+            )}
+          </article>
+
+          <article class="featured-card">
+            {sideFeature2?.cover && <img src={sideFeature2.cover} alt={sideFeature2.title} />}
+            {sideFeature2 && (
+              <div class="featured-overlay">
+                <div class="mini-tag">{sideFeature2.category || "Story"}</div>
+                <h3>
+                  <a href={`/${lang}/post/${sideFeature2.slug}`}>{sideFeature2.title}</a>
+                </h3>
+              </div>
+            )}
+          </article>
         </div>
-      </article>
-    ) : (
-      <p>{t.empty}</p>
-    )}
-
-    <h2 style="margin-top:28px;">{t.latest}</h2>
-    <div class="grid-3">
-      {latest.map((post) => (
-        <article class="card">
-          <img src={post.cover} alt={post.title} />
-          <div class="card-body">
-            <div class="tag">{post.category}</div>
-            <h3><a href={`/${lang}/post/${post.slug}`}>{post.title}</a></h3>
-            <p>{post.excerpt}</p>
-          </div>
-        </article>
-      ))}
+      ) : (
+        <p>{t.empty}</p>
+      )}
     </div>
+  </section>
 
-    <h2 style="margin-top:28px;">{t.categories}</h2>
-    <div class="grid-4">
-      {categories.map((category) => (
-        <a class="category-box" href={`/${lang}/category/${category.slug}`}>
-          <strong>{category.name}</strong>
-          <span>{category.count}</span>
-        </a>
-      ))}
+  <section class="homepage-main">
+    <div class="container content-with-sidebar">
+      <div>
+        <section class="editorial-section">
+          <div class="section-headline">
+            <h2>{t.latest}</h2>
+          </div>
+
+          <div class="section-split">
+            <div>
+              {sectionLead ? (
+                <article class="lead-story">
+                  {sectionLead.cover && <img src={sectionLead.cover} alt={sectionLead.title} />}
+                  <div class="card-body">
+                    <div class="tag">{sectionLead.category}</div>
+                    <h3>
+                      <a href={`/${lang}/post/${sectionLead.slug}`}>{sectionLead.title}</a>
+                    </h3>
+                    <div class="story-meta">
+                      <span>{sectionLead.author || "AKOMARO Editorial"}</span>
+                      <span>{sectionLead.date || sectionLead.publish_at || ""}</span>
+                    </div>
+                    <p>{sectionLead.excerpt}</p>
+                  </div>
+                </article>
+              ) : null}
+            </div>
+
+            <div class="story-list">
+              {latestPosts.map((post) => (
+                <article class="story-list-item">
+                  {post.cover && <img src={post.cover} alt={post.title} />}
+                  <div>
+                    <div class="tag">{post.category}</div>
+                    <h4>
+                      <a href={`/${lang}/post/${post.slug}`}>{post.title}</a>
+                    </h4>
+                    <div class="story-meta small-meta">
+                      <span>{post.date || post.publish_at || ""}</span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section class="editorial-section">
+          <div class="section-headline">
+            <h2>{t.editorialA}</h2>
+          </div>
+
+          <div class="dual-grid">
+            <div class="story-list-grid">
+              {sectionListA.map((post) => (
+                <article class="story-list-item horizontal">
+                  {post.cover && <img src={post.cover} alt={post.title} />}
+                  <div>
+                    <div class="tag">{post.category}</div>
+                    <h4>
+                      <a href={`/${lang}/post/${post.slug}`}>{post.title}</a>
+                    </h4>
+                    <p>{post.excerpt}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div class="story-list-grid">
+              {sectionListB.map((post) => (
+                <article class="story-list-item horizontal">
+                  {post.cover && <img src={post.cover} alt={post.title} />}
+                  <div>
+                    <div class="tag">{post.category}</div>
+                    <h4>
+                      <a href={`/${lang}/post/${post.slug}`}>{post.title}</a>
+                    </h4>
+                    <p>{post.excerpt}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="sidebar-column">
+        <div class="social-boxes">
+          <div class="social-box">
+            <div class="social-icon">f</div>
+            <strong>9.2K</strong>
+            <span>Facebook</span>
+          </div>
+          <div class="social-box">
+            <div class="social-icon">◎</div>
+            <strong>6.8K</strong>
+            <span>Instagram</span>
+          </div>
+          <div class="social-box">
+            <div class="social-icon">✕</div>
+            <strong>4.5K</strong>
+            <span>X</span>
+          </div>
+        </div>
+
+        <div class="ad-box">
+          <div class="ad-inner">AD</div>
+        </div>
+
+        <div class="sidebar-block">
+          <h3>{t.mostPopular}</h3>
+          <div class="sidebar-list">
+            {sidebarPosts.map((post) => (
+              <article class="sidebar-post">
+                {post.cover && <img src={post.cover} alt={post.title} />}
+                <div>
+                  <div class="tag">{post.category}</div>
+                  <h4>
+                    <a href={`/${lang}/post/${post.slug}`}>{post.title}</a>
+                  </h4>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div class="sidebar-block">
+          <h3>{t.categories}</h3>
+          <div class="footer-category-list">
+            {categories.map((category) => (
+              <div>
+                <a href={`/${lang}/category/${category.slug}`}>{category.name}</a>
+                <span>{category.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </aside>
     </div>
   </section>
 </BaseLayout>
