@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { SUPPORTED_LANGS, getPublishedPosts, getPostCategories } from "../components/content.js";
 
 const {
   title = "AKOMARO Magazine",
@@ -11,87 +12,197 @@ const {
 
 const ui = {
   "zh-hk": {
+    topLinks: ["關於", "品牌故事", "精選文章", "聯絡"],
     home: "首頁",
     brands: "品牌",
     articles: "文章",
     enquiry: "查詢",
-    footerText: "AKOMARO Magazine — 精選歐洲品牌、故事與產品系列。",
-    footerContact: "聯絡我們"
+    trending: "焦點內容",
+    footerAboutTitle: "關於 AKOMARO",
+    footerAboutText: "AKOMARO Magazine 精選歐洲品牌、故事與產品系列，連接內容、品牌與市場機會。",
+    footerLatest: "最新文章",
+    footerCategories: "分類",
+    footerContact: "聯絡我們",
+    footerBottom1: "關於我們",
+    footerBottom2: "廣告合作",
+    footerBottom3: "私隱政策"
   },
   "zh-cn": {
+    topLinks: ["关于", "品牌故事", "精选文章", "联系"],
     home: "首页",
     brands: "品牌",
     articles: "文章",
     enquiry: "咨询",
-    footerText: "AKOMARO Magazine — 精选欧洲品牌、故事与产品系列。",
-    footerContact: "联系我们"
+    trending: "焦点内容",
+    footerAboutTitle: "关于 AKOMARO",
+    footerAboutText: "AKOMARO Magazine 精选欧洲品牌、故事与产品系列，连接内容、品牌与市场机会。",
+    footerLatest: "最新文章",
+    footerCategories: "分类",
+    footerContact: "联系我们",
+    footerBottom1: "关于我们",
+    footerBottom2: "广告合作",
+    footerBottom3: "隐私政策"
   },
   "ja": {
+    topLinks: ["会社情報", "ブランド", "記事", "お問い合わせ"],
     home: "ホーム",
     brands: "ブランド",
     articles: "記事",
     enquiry: "お問い合わせ",
-    footerText: "AKOMARO Magazine — ヨーロッパの厳選ブランド、ストーリー、コレクション。",
-    footerContact: "お問い合わせ"
+    trending: "注目コンテンツ",
+    footerAboutTitle: "AKOMARO について",
+    footerAboutText: "AKOMARO Magazine は、厳選されたヨーロッパブランド、ストーリー、コレクションを紹介します。",
+    footerLatest: "最新記事",
+    footerCategories: "カテゴリー",
+    footerContact: "お問い合わせ",
+    footerBottom1: "会社情報",
+    footerBottom2: "広告掲載",
+    footerBottom3: "プライバシー"
   },
   "ko": {
+    topLinks: ["소개", "브랜드", "기사", "문의"],
     home: "홈",
     brands: "브랜드",
     articles: "기사",
     enquiry: "문의",
-    footerText: "AKOMARO Magazine — 유럽의 엄선된 브랜드, 스토리, 컬렉션.",
-    footerContact: "문의하기"
+    trending: "주목 콘텐츠",
+    footerAboutTitle: "AKOMARO 소개",
+    footerAboutText: "AKOMARO Magazine은 엄선된 유럽 브랜드, 스토리, 컬렉션을 소개합니다.",
+    footerLatest: "최신 기사",
+    footerCategories: "카테고리",
+    footerContact: "문의하기",
+    footerBottom1: "회사 소개",
+    footerBottom2: "광고 문의",
+    footerBottom3: "개인정보"
   }
 };
 
 const t = ui[lang] || ui["zh-hk"];
 const basePath = `/${lang}`;
+
+const latestPosts = getPublishedPosts(lang).slice(0, 4);
+const footerCategories = getPostCategories(lang).slice(0, 6);
+const ogImage = image.startsWith("http") ? image : `https://magazine.akomaro.com${image}`;
 ---
 <html lang={lang}>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{title}</title>
-  <meta name="description" content={description} />
-  <link rel="canonical" href={canonical} />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
 
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="AKOMARO Magazine" />
-  <meta property="og:title" content={title} />
-  <meta property="og:description" content={description} />
-  <meta property="og:url" content={canonical} />
-  <meta property="og:image" content={image.startsWith("http") ? image : `https://magazine.akomaro.com${image}`} />
+    {SUPPORTED_LANGS.map((code) => (
+      <link
+        rel="alternate"
+        hreflang={code}
+        href={`https://magazine.akomaro.com/${code}/`}
+      />
+    ))}
+    <link rel="alternate" hreflang="x-default" href="https://magazine.akomaro.com/zh-hk/" />
 
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={title} />
-  <meta name="twitter:description" content={description} />
-  <meta name="twitter:image" content={image.startsWith("http") ? image : `https://magazine.akomaro.com${image}`} />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AKOMARO Magazine" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
 
-  <slot name="head" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
-      <a class="brand" href={`${basePath}/`}>AKOMARO Magazine</a>
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
-      <nav style="display:flex;gap:16px;flex-wrap:wrap;">
-        <a href={`${basePath}/`}>{t.home}</a>
-        <a href={`${basePath}/brands/`}>{t.brands}</a>
-        <a href={`${basePath}/category/all`}>{t.articles}</a>
-        <a href={`${basePath}/enquiry/`}>{t.enquiry}</a>
-      </nav>
+    <slot name="head" />
+  </head>
+
+  <body>
+    <div class="utility-bar">
+      <div class="container utility-inner">
+        <div class="utility-left">
+          <a href={`${basePath}/`}>{t.topLinks[0]}</a>
+          <a href={`${basePath}/brands/`}>{t.topLinks[1]}</a>
+          <a href={`${basePath}/category/all`}>{t.topLinks[2]}</a>
+          <a href={`${basePath}/enquiry/`}>{t.topLinks[3]}</a>
+        </div>
+        <div class="utility-right">
+          {SUPPORTED_LANGS.map((code) => (
+            <a href={`/${code}/`}>{code.toUpperCase()}</a>
+          ))}
+        </div>
+      </div>
     </div>
-  </header>
 
-  <main>
-    <slot />
-  </main>
+    <header class="site-header">
+      <div class="container site-branding">
+        <a class="site-logo" href={`${basePath}/`}>
+          <span class="logo-top">AKOMARO</span>
+          <span class="logo-bottom">MAGAZINE</span>
+        </a>
+      </div>
 
-  <footer class="site-footer">
-    <div class="container" style="display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;">
-      <p>{t.footerText}</p>
-      <a href={`${basePath}/enquiry/`}>{t.footerContact}</a>
-    </div>
-  </footer>
-</body>
+      <div class="nav-shell">
+        <div class="container main-nav">
+          <nav class="nav-links">
+            <a href={`${basePath}/`}>{t.home}</a>
+            <a href={`${basePath}/brands/`}>{t.brands}</a>
+            <a href={`${basePath}/category/all`}>{t.articles}</a>
+            <a href={`${basePath}/enquiry/`}>{t.enquiry}</a>
+          </nav>
+          <div class="nav-search">⌕</div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div>
+          <div class="footer-logo">
+            <span class="logo-top">AKOMARO</span>
+            <span class="logo-bottom">MAGAZINE</span>
+          </div>
+          <h3 class="footer-heading">{t.footerAboutTitle}</h3>
+          <p class="footer-copy">{t.footerAboutText}</p>
+          <div class="footer-social">
+            <a href="#">FB</a>
+            <a href="#">IG</a>
+            <a href="#">X</a>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="footer-heading">{t.footerLatest}</h3>
+          <div class="footer-mini-list">
+            {latestPosts.map((post) => (
+              <a href={`/${lang}/post/${post.slug}`}>{post.title}</a>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 class="footer-heading">{t.footerCategories}</h3>
+          <div class="footer-category-list">
+            {footerCategories.map((category) => (
+              <div>
+                <a href={`/${lang}/category/${category.slug}`}>{category.name}</a>
+                <span>{category.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="container footer-bottom-inner">
+          <a href={`${basePath}/`}>{t.footerBottom1}</a>
+          <a href={`${basePath}/enquiry/`}>{t.footerBottom2}</a>
+          <a href={`${basePath}/enquiry/`}>{t.footerBottom3}</a>
+        </div>
+      </div>
+    </footer>
+  </body>
 </html>
